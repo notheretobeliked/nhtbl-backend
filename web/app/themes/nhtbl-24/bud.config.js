@@ -74,8 +74,8 @@ export default async (app) => {
         customFontSize: false,
       },
       layout: {
-        contentSize: '800px',
-        wideSize: '1000px',
+        contentSize: '856px',
+        wideSize: '1300px',
       },
     })
     .useTailwindColors()

@@ -1,0 +1,22 @@
+@import url(https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,500;1,500&display=swap);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.editor-styles-wrapper {
+    p {
+        @apply font-sans text-base;
+    }
+
+    .has-large-font-size,
+    h2 {
+        @apply text-xl font-display;
+    }
+
+    strong {
+        @apply font-normal;
+        background: url(../images/underline.svg) bottom repeat-x;
+    }
+
+}

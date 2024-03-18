@@ -144,7 +144,7 @@ class HomePageHero extends Block
     public function with()
     {
         return [
-            'items' => $this->items(),
+            'images' => $this->images(),
         ];
     }
 
@@ -168,9 +168,9 @@ class HomePageHero extends Block
      *
      * @return array
      */
-    public function items()
+    public function images()
     {
-        return get_field('items');
+        return get_field('images');
     }
 
     /**

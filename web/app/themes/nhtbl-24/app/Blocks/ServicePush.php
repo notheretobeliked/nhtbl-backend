@@ -131,7 +131,7 @@ class ServicePush extends Block
     public function with()
     {
         return [
-            'items' => $this->items(),
+            'services' => $this->items(),
         ];
     }
 
@@ -156,7 +156,7 @@ class ServicePush extends Block
                 'class' => '',
                 'id' => '',
             ],
-            'post_type' => ['services'],
+            'post_type' => ['service'],
             'taxonomy' => [],
             'elements' => '',
             'min' => '',
