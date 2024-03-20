@@ -8,10 +8,12 @@
     p {
         @apply font-sans text-base;
     }
-
-    .has-large-font-size,
-    h2 {
-        @apply text-xl font-display;
+    .has-lg-font-size,
+    .has-xl-font-size,
+    .has-2-xl-font-size,
+    h2,
+    h1 {
+        @apply font-display;
     }
 
     strong {

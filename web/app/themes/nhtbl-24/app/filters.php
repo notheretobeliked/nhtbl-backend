@@ -23,7 +23,7 @@ add_filter('excerpt_more', function () {
 
 add_filter('acf/save_post', function ($post_id) {
 	$gallery = get_field('image_gallery', $post_id, false);
-	if (!empty($gallery)) {
+	if (!empty($gallery) && !has_post_thumbnail($post_id)) {
 		$image_id = $gallery[0];
 		set_post_thumbnail($post_id, $image_id);
 	}

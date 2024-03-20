@@ -16,7 +16,7 @@
       "duotone": [],
       "palette": [
         {
-          "color": "000000",
+          "color": "#000000",
           "name": "Black",
           "slug": "black"
         },
@@ -72,6 +72,33 @@
           "fontFamily": "Avara",
           "name": "Avara",
           "slug": "display"
+        }
+      ],
+      "fontSizes": [
+        {
+          "name": "sm",
+          "size": ".875rem",
+          "slug": "sm"
+        },
+        {
+          "name": "base",
+          "size": "1rem",
+          "slug": "base"
+        },
+        {
+          "name": "lg",
+          "size": "1.25rem",
+          "slug": "lg"
+        },
+        {
+          "name": "xl",
+          "size": "2rem",
+          "slug": "xl"
+        },
+        {
+          "name": "2xl",
+          "size": "2.875rem",
+          "slug": "2xl"
         }
       ]
     },

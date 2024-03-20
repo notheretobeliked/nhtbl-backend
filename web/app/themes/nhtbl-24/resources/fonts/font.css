@@ -1,0 +1,25 @@
+@font-face {
+    font-family: 'Avara';
+    src:    url('../fonts/avara/Bold/Avara-Bold_web.eot');
+    src:    url('../fonts/avara/Bold/Avara-Bold_web.eot?#iefix') format('embedded-opentype'),
+            url('../fonts/avara/Bold/Avara-Bold_web.woff') format('woff'),
+            url('../fonts/avara/Bold/Avara-Bold_web.woff2') format('woff2'),
+            url('../fonts/avara/Bold/Avara-Bold_web.ttf') format('truetype'),
+            url('../fonts/avara/Bold/Avara-Bold_web.svg#svgFontName') format('svg');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avara';
+    src:    url('../fonts/avara/BoldItalic/Avara-Bold_Italic_web.eot');
+    src:    url('../fonts/avara/BoldItalic/Avara-Bold_Italic_web.eot?#iefix') format('embedded-opentype'),
+            url('../fonts/avara/BoldItalic/Avara-Bold_Italic_web.woff') format('woff'),
+            url('../fonts/avara/BoldItalic/Avara-Bold_Italic_web.woff2') format('woff2'),
+            url('../fonts/avara/BoldItalic/Avara-Bold_Italic_web.ttf') format('truetype'),
+            url('../fonts/avara/BoldItalic/Avara-Bold_Italic_web.svg#svgFontName') format('svg');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}

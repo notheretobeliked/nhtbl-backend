@@ -3215,6 +3215,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vue/reactivity@npm:~3.1.1":
+  version: 3.1.5
+  resolution: "@vue/reactivity@npm:3.1.5"
+  dependencies:
+    "@vue/shared": "npm:3.1.5"
+  checksum: 10c0/1c38aeb73725b3825bea793194334b232388236f0b06b04471508a77cb55d71841e3eb2f345ab6812c76569918aa8f019e4cdf59ec9cefbab7625bb2bc26eb58
+  languageName: node
+  linkType: hard
+
+"@vue/shared@npm:3.1.5":
+  version: 3.1.5
+  resolution: "@vue/shared@npm:3.1.5"
+  checksum: 10c0/197aa5bdd370177d26ca7a178bb3d3d2332cee2c8e67000bd2bb91b1ffc571d5489fab3a65f38a32e941dc8182d1cd6c6af6e294bb9ea13e01eafdde475319ea
+  languageName: node
+  linkType: hard
+
 "@webassemblyjs/ast@npm:1.11.6, @webassemblyjs/ast@npm:^1.11.5":
   version: 1.11.6
   resolution: "@webassemblyjs/ast@npm:1.11.6"
@@ -3510,6 +3526,22 @@ __metadata:
     require-from-string: "npm:^2.0.2"
     uri-js: "npm:^4.2.2"
   checksum: 10c0/ac4f72adf727ee425e049bc9d8b31d4a57e1c90da8d28bcd23d60781b12fcd6fc3d68db5df16994c57b78b94eed7988f5a6b482fd376dc5b084125e20a0a622e
+  languageName: node
+  linkType: hard
+
+"alpinejs-masonry@npm:^1.0.14":
+  version: 1.0.14
+  resolution: "alpinejs-masonry@npm:1.0.14"
+  checksum: 10c0/71ac520ab2c6f2d7e2fd1c86e50f180339c196c776e9da4e17dcec4582e983ecab58f716091cff461136c2df3f407c4c11f2a50d3ac679e8a7836a30ab9f76af
+  languageName: node
+  linkType: hard
+
+"alpinejs@npm:^3.13.7":
+  version: 3.13.7
+  resolution: "alpinejs@npm:3.13.7"
+  dependencies:
+    "@vue/reactivity": "npm:~3.1.1"
+  checksum: 10c0/5c6a3bbddfdc85d5cfc95eb30d0e9a341d9d4bbb0ff31ee02698e82ce2ceaa83b74803409d9522961115798d3db99f3795a7ad13d0759655a6e1cb51af36fc70
   languageName: node
   linkType: hard
 
@@ -9345,6 +9377,8 @@ __metadata:
     "@roots/bud-prettier": "npm:^6.20.0"
     "@roots/bud-tailwindcss": "npm:6.20.0"
     "@roots/sage": "npm:6.20.0"
+    alpinejs: "npm:^3.13.7"
+    alpinejs-masonry: "npm:^1.0.14"
   languageName: unknown
   linkType: soft
 

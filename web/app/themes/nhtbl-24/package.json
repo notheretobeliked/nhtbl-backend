@@ -23,5 +23,9 @@
     "@roots/bud-prettier": "^6.20.0",
     "@roots/bud-tailwindcss": "6.20.0",
     "@roots/sage": "6.20.0"
+  },
+  "dependencies": {
+    "alpinejs": "^3.13.7",
+    "alpinejs-masonry": "^1.0.14"
   }
 }

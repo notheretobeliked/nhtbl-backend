@@ -5,7 +5,7 @@
                 <div>
                   <InnerBlocks template="{{ $block->template }}" />
                 </div>
-                <x-button label="Read more" />
+                <x-button label="Read more" :url="get_the_permalink($services[0])" />
             </div>
             <div class="aspect-square">
                 <img src="{!! get_the_post_thumbnail_url($services[0], 'post-thumbnail') !!}" alt="Thumbnail" class="!w-full !h-full object-cover" />

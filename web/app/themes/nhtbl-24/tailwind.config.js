@@ -10,7 +10,7 @@ const config = {
       'display': ['Avara'],
     },
     colors: {
-      'black': "000000",
+      'black': "#000000",
       'white': "#FFFFFF",  
       'nhtbl-green': {
         base: '#E0FF00'
