@@ -13,20 +13,6 @@ return [
     */
 
     'post' => [
-        'service' => [
-            'enter_title_here' => 'Enter service title',
-            'menu_icon' => 'dashicons-admin-tools',
-            'supports' => ['title', 'editor', 'excerpt', 'author', 'revisions', 'thumbnail'],
-            'show_in_rest' => true,
-            'has_archive' => false,
-            'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
-            'graphql_single_name' => 'nhtbl_service', 
-            'graphql_plural_name' => 'nhtbl_services', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
-                'labels' => [
-                'singular' => 'Service',
-                'plural' => 'Services',
-            ],
-        ],
         'project' => [
             'enter_title_here' => 'Enter project title',
             'menu_icon' => 'dashicons-admin-appearance',
@@ -38,7 +24,7 @@ return [
             'graphql_plural_name' => 'nhtbl_projects', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
                 'labels' => [
                 'singular' => 'Project',
-                'plural' => 'Projects',
+                'plural' => 'Portfolio',
             ],
         ],
     ],

@@ -119,8 +119,8 @@ class ServicePush extends Block
      * @var array
      */
     public $template = [
-        'core/heading' => ['placeholder' => 'Hello World'],
-        'core/paragraph' => ['placeholder' => 'Welcome to the Service Push block.'],
+        'core/heading' => ['placeholder' => 'Service name'],
+        'core/paragraph' => ['placeholder' => 'Short description.'],
     ];
 
     /**
@@ -156,7 +156,7 @@ class ServicePush extends Block
                 'class' => '',
                 'id' => '',
             ],
-            'post_type' => ['service'],
+            'post_type' => ['page'],
             'taxonomy' => [],
             'elements' => '',
             'min' => '',
