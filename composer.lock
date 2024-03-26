@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0532d41a77e5658c162a4f63f684f3ef",
+    "content-hash": "ce3d18a44449b2dd4256894c7d61a4c6",
     "packages": [
         {
             "name": "appsero/client",
@@ -6548,6 +6548,24 @@
             ],
             "description": "Use field groups and fields from Advanced Custom Fields in your WPGraphQL API",
             "time": "2024-02-20T20:22:59+00:00"
+        },
+        {
+            "name": "wpackagist-plugin/alttext-ai",
+            "version": "1.3.2",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/alttext-ai/",
+                "reference": "tags/1.3.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/alttext-ai.1.3.2.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/alttext-ai/"
         },
         {
             "name": "wpackagist-plugin/performance-lab",
