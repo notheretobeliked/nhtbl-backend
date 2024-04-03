@@ -75,7 +75,7 @@ class PortfolioBlock extends Block
      *
      * @var string
      */
-    public $align = '';
+    public $align = 'full';
 
     /**
      * The default block text alignment.
@@ -98,8 +98,8 @@ class PortfolioBlock extends Block
      */
     public $supports = [
         'align' => true,
-        'align_text' => false,
-        'align_content' => false,
+        'align_text' => true,
+        'align_content' => true,
         'full_height' => false,
         'anchor' => false,
         'mode' => false,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce3d18a44449b2dd4256894c7d61a4c6",
+    "content-hash": "cbb56f9e67a969ce65fc777fe6b7ff47",
     "packages": [
         {
             "name": "appsero/client",
@@ -6566,6 +6566,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/alttext-ai/"
+        },
+        {
+            "name": "wpackagist-plugin/faustwp",
+            "version": "1.2.2",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/faustwp/",
+                "reference": "trunk"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/faustwp.zip?timestamp=1709138494"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/faustwp/"
         },
         {
             "name": "wpackagist-plugin/performance-lab",
