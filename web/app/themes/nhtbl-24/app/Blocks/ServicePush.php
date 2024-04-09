@@ -159,10 +159,11 @@ class ServicePush extends Block
             'post_type' => ['page'],
             'taxonomy' => [],
             'elements' => '',
-            'min' => '',
-            'max' => '',
+            'min' => '1',
+            'max' => '1',
             'return_format' => 'object',
         ]);
+
         return $servicePush->build();
     }
 

@@ -26,6 +26,14 @@ return [
                 'singular' => 'Project',
                 'plural' => 'Portfolio',
             ],
+            'admin_cols' => [
+                'featured_image' => [
+                    'title'          => 'Image',
+                    'featured_image' => 'medium',
+                    'height'         => 40,
+                ],
+
+            ],
         ],
     ],
 
@@ -40,9 +48,20 @@ return [
     */
 
     'taxonomy' => [
-        'genre' => [
-            'links' => ['book'],
-            'meta_box' => 'radio',
+        'client' => [
+            'links' => ['project'],
+            'singular' => 'Client',
+            'plural'   => 'Clients',        
+            'meta_box' => 'simple',
+            'create_new' => true,
+            'show_ui'  => true,
+            'exclusive' => false, # Custom arg  // true means: just one can be selected      
+            'show_in_rest' => true,
+            'has_archive' => false,
+            'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
+            'graphql_single_name' => 'nhtbl_client', 
+            'graphql_plural_name' => 'nhtbl_clients', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
+            'required'          => true, # Custom arg  // 
         ],
     ],
 
