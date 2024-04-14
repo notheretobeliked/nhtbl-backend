@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0d04547342c6166d3c27a38acfe81db",
+    "content-hash": "b5960e9ff2750c47672d9da1a7540295",
     "packages": [
         {
             "name": "brick/math",
@@ -442,6 +442,43 @@
                 }
             ],
             "time": "2024-02-05T11:56:58+00:00"
+        },
+        {
+            "name": "doreybenjamin/wp-webhook-vercel-deploy",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doreybenjamin/wp-webhook-vercel-deploy.git",
+                "reference": "be8787e8471588979f66eab8ee2d0c2c350c341c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doreybenjamin/wp-webhook-vercel-deploy/zipball/be8787e8471588979f66eab8ee2d0c2c350c341c",
+                "reference": "be8787e8471588979f66eab8ee2d0c2c350c341c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "type": "wordpress-plugin",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Dorey Benjamin",
+                    "email": "benjamin@biomx.dev",
+                    "homepage": "https://github.com/doreybenjamin"
+                }
+            ],
+            "description": "WP Plugin that adds functionality to easily send Vercel Webhook requests",
+            "homepage": "https://github.com/doreybenjamin/wp-webhook-vercel-deploy",
+            "support": {
+                "issues": "https://github.com/doreybenjamin/wp-webhook-vercel-deploy/issues",
+                "source": "https://github.com/doreybenjamin/wp-webhook-vercel-deploy/tree/v1.0"
+            },
+            "time": "2024-01-15T11:20:48+00:00"
         },
         {
             "name": "egulias/email-validator",

@@ -66,7 +66,8 @@
     "wpackagist-plugin/faustwp": "^1.2",
     "yoast/wordpress-seo": "^22.4",
     "ashhitch/wp-graphql-yoast-seo": "^4.22",
-    "wpackagist-plugin/simple-custom-post-order": "^2.5"
+    "wpackagist-plugin/simple-custom-post-order": "^2.5",
+    "doreybenjamin/wp-webhook-vercel-deploy": "^1.0"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.7.1",

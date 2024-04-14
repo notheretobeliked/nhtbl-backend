@@ -42,7 +42,6 @@
     "php": ">=8.1",
     "log1x/acf-composer": "^3.0",
     "log1x/poet": "^2.0",
-    "yoast/wordpress-seo": "*"
   },
   "require-dev": {
     "laravel/pint": "^1.13"
@@ -53,7 +52,8 @@
   "config": {
     "optimize-autoloader": true,
     "preferred-install": "dist",
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": true
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
