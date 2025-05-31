@@ -57,7 +57,7 @@
     "wpackagist-theme/twentytwentyfour": "^1.0",
     "roots/acorn": "^4.0",
     "wp-graphql/wp-graphql": "^1.21",
-    "wp-graphql/wpgraphql-acf": "2.1.2",
+    "wp-graphql/wpgraphql-acf": "2.4.1",
     "wpengine/wp-graphql-content-blocks": "*",
     "wpackagist-plugin/performance-lab": "^2.9",
     "wpackagist-plugin/webp-uploads": "^1.0",

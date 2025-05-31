@@ -81,6 +81,17 @@ add_action('after_setup_theme', function () {
      *
      * @link https://developer.wordpress.org/reference/functions/add_theme_support/#html5
      */
+
+    if (function_exists('acf_add_options_page')) {
+        acf_add_options_page([
+            'page_title' => 'Featured Projects',
+            'menu_title' => 'Featured Projects',
+            'menu_slug'  => 'featured-projects-settings',
+            'capability' => 'edit_posts',
+            'redirect'   => false,
+            'position'   => 20,
+        ]);
+    }
     add_theme_support('html5', [
         'caption',
         'comment-form',

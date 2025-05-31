@@ -33,8 +33,8 @@ export default async (app) => {
    * @see {@link https://bud.js.org/reference/bud.watch}
    */
   app
-    .setUrl('http://nhtbl-backend.test:3000')
-    .setProxyUrl('http://nhtbl-backend.test')
+    .setUrl('https://nhtbl-backend.test:3000')
+    .setProxyUrl('https://nhtbl-backend.test')
     .watch(['resources/views', 'app'])
 
   /**
