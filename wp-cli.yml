@@ -3,6 +3,6 @@ server:
   docroot: web
 
 @prod:
-  ssh: forge@greta.nhtbl.studio:/home/forge/greta.nhtbl.studio/current
+  ssh: forge@mick.heatstrike.uk:/home/forge/mick.heatstrike.uk/current
 
 @dev: ''

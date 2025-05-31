@@ -1,0 +1,1 @@
+<div><a href="{!!$postContent["url"]!!}">{!!$postContent["image"]!!}</a></div>

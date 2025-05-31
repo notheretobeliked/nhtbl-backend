@@ -6,8 +6,13 @@
 
 .editor-styles-wrapper {
     p {
-        @apply font-sans text-base mb-4;
+        @apply font-sans text-base mb-3;
     }
+
+    h1.editor-post-title {
+        @apply text-xl mb-4;
+    }
+
     .has-lg-font-size,
     .has-xl-font-size,
     .has-2-xl-font-size,

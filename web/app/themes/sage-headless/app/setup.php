@@ -17,7 +17,6 @@ add_action('wp_enqueue_scripts', function () {
     bundle('app')->enqueue();
 }, 100);
 
-
 /**
  * Register the theme assets with the block editor.
  *
@@ -26,6 +25,22 @@ add_action('wp_enqueue_scripts', function () {
 add_action('enqueue_block_editor_assets', function () {
     bundle('editor')->enqueue();
 }, 100);
+
+/**
+ * Register ACF options pages at the proper time
+ */
+add_action('init', function () {
+    if (function_exists('acf_add_options_page')) {
+        acf_add_options_page([
+            'page_title' => 'Featured Projects',
+            'menu_title' => 'Featured Projects',
+            'menu_slug'  => 'featured-projects-settings',
+            'capability' => 'edit_posts',
+            'redirect'   => false,
+            'position'   => 20,
+        ]);
+    }
+});
 
 /**
  * Register the initial theme setup.
@@ -76,13 +91,14 @@ add_action('after_setup_theme', function () {
      * @link https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-support/#responsive-embedded-content
      */
     add_theme_support('responsive-embeds');
+    add_theme_support( 'align-wide' );
+
 
     /**
      * Enable HTML5 markup support.
      *
      * @link https://developer.wordpress.org/reference/functions/add_theme_support/#html5
      */
-
     add_theme_support('html5', [
         'caption',
         'comment-form',
@@ -100,6 +116,34 @@ add_action('after_setup_theme', function () {
      */
     add_theme_support('customize-selective-refresh-widgets');
 }, 20);
+
+/**
+ * 
+ * Hack ACF/Graphql to allow querying 'align' on 'attributes'.
+ * 
+ */
+
+// Try to intercept before WPGraphQL processes the block type
+add_filter('register_block_type_args', function($args, $name) {
+    if (isset($args['attributes']['align'])) {
+        $args['attributes']['align'] = [
+            'type' => 'string',
+            'default' => null,
+            '__experimentalRole' => 'content',
+            'source' => 'attribute',
+            'selector' => '[class*="align"]',
+            'extractValue' => function($value) {
+                if (preg_match('/align(full|wide|left|right|center)/', $value, $matches)) {
+                    return $matches[1];
+                }
+                return null;
+            }
+        ];
+    }
+    return $args;
+}, 20, 2);
+
+
 
 /**
  * Register the theme sidebars.
