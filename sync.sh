@@ -34,10 +34,10 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     # echo "Importing db" &&
     # wp "@$TO" db import ./$FROM.sql --path=web/wp && ## from production
   echo "Exporting db from @$FROM to @$TO" &&
-  wp "@$FROM" db export --path=web/wp - > ./temp_export_import.sql &&
+  wp "@$FROM" db export --path=web/wp - 2>/dev/null | grep -v -E "^(Deprecated:|Warning:|Notice:)" > ./temp_export_import.sql &&
   # wp "@$TO" db import ./temp_export_import.sql --path=web/wp &&
   cat ./temp_export_import.sql | wp "@$TO" db import - --path=web/wp && ## from dev
-  echo "Modifying $TO db" &&
+    echo "Modifying $TO db" &&
   wp "@$TO" search-replace $FROMSITE $TOSITE --recurse-objects --skip-columns=guid --path=web/wp
 fi
 if [[ "$uploads" =~ ^([yY][eE][sS]|[yY])$ ]]; then
