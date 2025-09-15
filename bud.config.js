@@ -50,19 +50,13 @@ export default async (app) => {
       background: {
         backgroundImage: true,
       },
-      border: {
-        color: true,
-        radius: true,
-        style: true,
-        width: true,
-      },
       color: {
         custom: false,
         customDuotone: false,
         customGradient: false,
         defaultDuotone: false,
         defaultGradients: false,
-        defaultPalette: true,
+        defaultPalette: false,
         duotone: [],
       },
       custom: {
@@ -78,6 +72,18 @@ export default async (app) => {
       },
       typography: {
         customFontSize: false,
+        fontFamilies: [
+          {
+            fontFamily: '"Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+            name: 'Inter Tight',
+            slug: 'inter-tight'
+          },
+          {
+            fontFamily: '"Avara", Georgia, "Times New Roman", Times, serif',
+            name: 'Avara Display',
+            slug: 'avara-display'
+          }
+        ]
       },
       layout: {
         contentSize: '856px',
@@ -86,5 +92,5 @@ export default async (app) => {
     })
     .useTailwindColors()
     .useTailwindFontSize()
-    .useTailwindFontFamily()
+    // Remove .useTailwindFontFamily() since we're defining custom font families above
 }
