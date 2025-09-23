@@ -108,8 +108,8 @@ class LinkBlock extends Block
      */
     public $supports = [
         'align' => true,
-        'align_text' => true,
-        'align_content' => true,
+        'align_text' => false,
+        'align_content' => false,
         'full_height' => false,
         'anchor' => false,
         'mode' => true,

@@ -18,13 +18,19 @@ return [
             'menu_icon' => 'dashicons-admin-appearance',
             'supports' => ['title', 'editor', 'excerpt', 'author', 'revisions', 'thumbnail'],
             'show_in_rest' => true,
-            'has_archive' => true,
+            'publicly_queryable' => true,
+            'has_archive' => false,
             'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
             'graphql_single_name' => 'nhtbl_project',
             'graphql_plural_name' => 'nhtbl_projects', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
             'labels' => [
                 'singular' => 'Project',
                 'plural' => 'Portfolio',
+            ],
+            'rewrite' => [
+                'slug' => 'portfolio', // This will make URLs like /service-type/design instead of /service/design
+                'with_front' => false,
+                'hierarchical' => true,
             ],
             'admin_cols' => [
                 'featured_image' => [

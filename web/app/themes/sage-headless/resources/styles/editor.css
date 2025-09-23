@@ -27,3 +27,12 @@
     }
 
 }
+
+
+.post-type-project .editor-styles-wrapper {
+    @apply bg-black !text-white;
+
+    .wp-block-post-content > .wp-block {
+        @apply mb-7;
+    }
+}

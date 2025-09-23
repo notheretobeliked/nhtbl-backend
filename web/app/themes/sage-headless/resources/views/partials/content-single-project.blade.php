@@ -9,7 +9,7 @@
   <div class="e-content">
 
     
-    <x-galerie-output :images="$images" />
+    
 {!!$content !!}
 
 </div>

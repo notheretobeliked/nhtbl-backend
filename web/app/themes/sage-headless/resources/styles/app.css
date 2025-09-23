@@ -43,6 +43,5 @@ h1 {
 }
 
 .wp-block-columns {
-    @apply grid gap-7;
+    @apply gap-7;
 }
-

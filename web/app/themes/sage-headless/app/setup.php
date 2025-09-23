@@ -125,25 +125,80 @@ add_action('after_setup_theme', function () {
 
 // Try to intercept before WPGraphQL processes the block type
 add_filter('register_block_type_args', function($args, $name) {
-    if (isset($args['attributes']['align'])) {
+    // Ensure all blocks have consistent align attribute definition
+    if (isset($args['supports']['align']) && $args['supports']['align']) {
         $args['attributes']['align'] = [
             'type' => 'string',
-            'default' => null,
-            '__experimentalRole' => 'content',
-            'source' => 'attribute',
-            'selector' => '[class*="align"]',
-            'extractValue' => function($value) {
-                if (preg_match('/align(full|wide|left|right|center)/', $value, $matches)) {
-                    return $matches[1];
-                }
-                return null;
-            }
+            'default' => '',
         ];
     }
+    
+    // Also handle blocks that already have align attributes defined
+    if (isset($args['attributes']['align'])) {
+        $args['attributes']['align'] = [
+            'type' => 'string', 
+            'default' => '',
+        ];
+    }
+    
     return $args;
 }, 20, 2);
 
+// Additional filter to normalize alignment for WPGraphQL schema consistency
+add_filter('wpgraphql_block_type_registration', function($config, $block_type) {
+    if (isset($config['attributes']['align'])) {
+        $config['attributes']['align']['type'] = 'String';
+        $config['attributes']['align']['default'] = '';
+    }
+    return $config;
+}, 10, 2);
 
+// Hook into WPGraphQL to ensure consistent field types across all blocks
+add_filter('graphql_register_types', function() {
+    // Force all blocks to have nullable String align field
+    add_filter('graphql_object_type_field_config', function($field_config, $type_name, $field_name) {
+        if ($field_name === 'align' && strpos($type_name, 'Block') !== false) {
+            $field_config['type'] = 'String'; // Ensure it's nullable String, not String!
+        }
+        return $field_config;
+    }, 10, 3);
+});
+
+// Additional filter to handle alignment values in GraphQL
+add_filter('graphql_resolve_field', function($result, $source, $args, $context, $info) {
+    if ($info->fieldName === 'align' && isset($source['attrs']['align'])) {
+        $align = $source['attrs']['align'];
+        
+        // Handle direct alignment values
+        if (in_array($align, ['full', 'wide', 'left', 'right', 'center'])) {
+            return $align;
+        }
+        
+        // Handle CSS class patterns
+        if (is_string($align) && preg_match('/align[_-]?(full|wide|left|right|center)/', $align, $matches)) {
+            return $matches[1];
+        }
+        
+        // Handle className attribute if align is not directly set
+        if (empty($align) && isset($source['attrs']['className'])) {
+            $className = $source['attrs']['className'];
+            if (preg_match('/align[_-]?(full|wide|left|right|center)/', $className, $matches)) {
+                return $matches[1];
+            }
+        }
+    }
+    
+    return $result;
+}, 10, 5);
+
+
+
+/**
+ * Initialize Image Migration Admin Tool
+ */
+if (is_admin()) {
+    require_once get_template_directory() . '/app/Admin/ImageMigration.php';
+}
 
 /**
  * Register the theme sidebars.

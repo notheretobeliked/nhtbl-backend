@@ -27,6 +27,7 @@ class Post extends Composer
         return [
             'title' => $this->title(),
             'pagination' => $this->pagination(),
+            'content' => get_the_content()
         ];
     }
 
