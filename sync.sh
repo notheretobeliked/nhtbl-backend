@@ -4,8 +4,8 @@
 DEVDIR="web/app/uploads/"
 DEVSITE="nhtbl-backend.test"
 
-PRODDIR="forge@greta.nhtbl.studio:/home/forge/greta.nhtbl.studio/shared/uploads/"
-PRODSITE="greta.nhtbl.studio"
+PRODDIR="cleavr@amna.nhtbl.studio:/home/cleavr/amna.nhtbl.studio/shared/uploads/"
+PRODSITE="amna.nhtbl.studio"
 
 FROM=$1
 TO=$2
@@ -34,7 +34,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     # echo "Importing db" &&
     # wp "@$TO" db import ./$FROM.sql --path=web/wp && ## from production
   echo "Exporting db from @$FROM to @$TO" &&
-  wp "@$FROM" db export --path=web/wp - 2>/dev/null | grep -v -E "^(Deprecated:|Warning:|Notice:)" > ./temp_export_import.sql &&
+  wp "@$FROM" db export --path=web/wp - 2>/dev/null | grep -v -E "^(Deprecated:|Warning:|Notice:|/\*M!999999)" > ./temp_export_import.sql &&
   # wp "@$TO" db import ./temp_export_import.sql --path=web/wp &&
   cat ./temp_export_import.sql | wp "@$TO" db import - --path=web/wp && ## from dev
     echo "Modifying $TO db" &&

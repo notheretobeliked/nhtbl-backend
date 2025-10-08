@@ -3,6 +3,7 @@ server:
   docroot: web
 
 @prod:
-  ssh: forge@greta.nhtbl.studio:/home/forge/greta.nhtbl.studio/current
+  ssh: cleavr@amna.nhtbl.studio:/home/cleavr/amna.nhtbl.studio/current
+  thi
 
 @dev: ''
