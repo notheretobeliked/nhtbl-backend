@@ -41,6 +41,45 @@ return [
 
             ],
         ],
+        'survey' => [
+            'enter_title_here' => 'Enter survey title',
+            'menu_icon' => 'dashicons-admin-appearance',
+            'supports' => ['title', 'revisions'],
+            'show_in_rest' => true,
+            'public' => true,
+            'publicly_queryable' => true,
+            'has_archive' => false,
+            'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
+            'graphql_single_name' => 'nhtbl_survey',
+            'graphql_plural_name' => 'nhtbl_surveys', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
+            'labels' => [
+                'singular' => 'Survey',
+                'plural' => 'Surveys',
+            ],
+            'rewrite' => [
+                'slug' => 'survey', // This will make URLs like /service-type/design instead of /service/design
+                'with_front' => false,
+                'hierarchical' => true,
+            ],
+
+        ],
+        'survey_response' => [
+            'enter_title_here' => 'Enter survey response',
+            'menu_icon' => 'dashicons-admin-appearance',
+            'supports' => ['title', 'custom-fields'],
+            'show_in_rest' => true,
+            'public' => false,
+            'publicly_queryable' => true,
+            'has_archive' => false,
+            'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
+            'graphql_single_name' => 'nhtbl_surveyResponse',
+            'graphql_plural_name' => 'nhtbl_surveyResponses', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
+            'labels' => [
+                'singular' => 'Survey response',
+                'plural' => 'Survey responses',
+            ],
+
+        ],
     ],
 
     /*

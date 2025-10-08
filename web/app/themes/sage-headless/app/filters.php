@@ -28,3 +28,4 @@ add_filter('acf/save_post', function ($post_id) {
 		set_post_thumbnail($post_id, $image_id);
 	}
 });
+

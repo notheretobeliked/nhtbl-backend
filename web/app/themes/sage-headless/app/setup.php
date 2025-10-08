@@ -91,7 +91,7 @@ add_action('after_setup_theme', function () {
      * @link https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-support/#responsive-embedded-content
      */
     add_theme_support('responsive-embeds');
-    add_theme_support( 'align-wide' );
+    add_theme_support('align-wide');
 
 
     /**
@@ -124,7 +124,7 @@ add_action('after_setup_theme', function () {
  */
 
 // Try to intercept before WPGraphQL processes the block type
-add_filter('register_block_type_args', function($args, $name) {
+add_filter('register_block_type_args', function ($args, $name) {
     // Ensure all blocks have consistent align attribute definition
     if (isset($args['supports']['align']) && $args['supports']['align']) {
         $args['attributes']['align'] = [
@@ -132,20 +132,20 @@ add_filter('register_block_type_args', function($args, $name) {
             'default' => '',
         ];
     }
-    
+
     // Also handle blocks that already have align attributes defined
     if (isset($args['attributes']['align'])) {
         $args['attributes']['align'] = [
-            'type' => 'string', 
+            'type' => 'string',
             'default' => '',
         ];
     }
-    
+
     return $args;
 }, 20, 2);
 
 // Additional filter to normalize alignment for WPGraphQL schema consistency
-add_filter('wpgraphql_block_type_registration', function($config, $block_type) {
+add_filter('wpgraphql_block_type_registration', function ($config, $block_type) {
     if (isset($config['attributes']['align'])) {
         $config['attributes']['align']['type'] = 'String';
         $config['attributes']['align']['default'] = '';
@@ -154,9 +154,9 @@ add_filter('wpgraphql_block_type_registration', function($config, $block_type) {
 }, 10, 2);
 
 // Hook into WPGraphQL to ensure consistent field types across all blocks
-add_filter('graphql_register_types', function() {
+add_filter('graphql_register_types', function () {
     // Force all blocks to have nullable String align field
-    add_filter('graphql_object_type_field_config', function($field_config, $type_name, $field_name) {
+    add_filter('graphql_object_type_field_config', function ($field_config, $type_name, $field_name) {
         if ($field_name === 'align' && strpos($type_name, 'Block') !== false) {
             $field_config['type'] = 'String'; // Ensure it's nullable String, not String!
         }
@@ -165,20 +165,20 @@ add_filter('graphql_register_types', function() {
 });
 
 // Additional filter to handle alignment values in GraphQL
-add_filter('graphql_resolve_field', function($result, $source, $args, $context, $info) {
+add_filter('graphql_resolve_field', function ($result, $source, $args, $context, $info) {
     if ($info->fieldName === 'align' && isset($source['attrs']['align'])) {
         $align = $source['attrs']['align'];
-        
+
         // Handle direct alignment values
         if (in_array($align, ['full', 'wide', 'left', 'right', 'center'])) {
             return $align;
         }
-        
+
         // Handle CSS class patterns
         if (is_string($align) && preg_match('/align[_-]?(full|wide|left|right|center)/', $align, $matches)) {
             return $matches[1];
         }
-        
+
         // Handle className attribute if align is not directly set
         if (empty($align) && isset($source['attrs']['className'])) {
             $className = $source['attrs']['className'];
@@ -187,7 +187,7 @@ add_filter('graphql_resolve_field', function($result, $source, $args, $context, 
             }
         }
     }
-    
+
     return $result;
 }, 10, 5);
 
@@ -222,4 +222,121 @@ add_action('widgets_init', function () {
         'name' => __('Footer', 'sage'),
         'id' => 'sidebar-footer',
     ] + $config);
+});
+
+/**
+ * Register Survey GraphQL Types and Mutations
+ */
+add_action('graphql_register_types', function () {
+    // Helper function to generate keys
+    $generate_survey_key = function ($text, $prefix = '', $max_length = 50) {
+        $key = strtolower($text);
+        $key = preg_replace('/[^a-z0-9\s]/', '', $key);
+        $key = preg_replace('/\s+/', '_', trim($key));
+        $key = substr($key, 0, $max_length);
+        if ($prefix) {
+            $key = $prefix . '_' . $key;
+        }
+        $key = rtrim($key, '_');
+        return $key;
+    };
+
+    // Register questionKey field on SurveyQuestions
+    register_graphql_field('SurveyQuestions', 'questionKey', [
+        'type' => 'String',
+        'description' => 'Auto-generated key from question text',
+        'resolve' => function ($source, $args, $context, $info) use ($generate_survey_key) {
+            // Try both camelCase and snake_case
+            $question_text = $source['questionText'] ?? $source['question_text'] ?? null;
+
+            if (!empty($question_text)) {
+                // Extract question number from the path
+                $path = $info->path ?? [];
+                $question_index = null;
+
+                // Find the numeric index in the path
+                foreach ($path as $segment) {
+                    if (is_numeric($segment)) {
+                        $question_index = (int)$segment + 1; // +1 for human-readable numbering
+                        break;
+                    }
+                }
+
+                // Fallback: generate without prefix if we can't find the index
+                $prefix = $question_index ? 'q' . $question_index : '';
+                return $generate_survey_key($question_text, $prefix);
+            }
+            return null;
+        }
+    ]);
+
+    // Register optionValue field on SurveyQuestionsOptions
+    register_graphql_field('SurveyQuestionsOptions', 'optionValue', [
+        'type' => 'String',
+        'description' => 'Auto-generated value from option label',
+        'resolve' => function ($source, $args, $context, $info) use ($generate_survey_key) {
+            // Try both camelCase and snake_case
+            $option_label = $source['optionLabel'] ?? $source['option_label'] ?? null;
+
+            if (!empty($option_label)) {
+                return $generate_survey_key($option_label);
+            }
+            return null;
+        }
+    ]);
+
+    // Register survey response mutation
+    register_graphql_mutation('submitSurveyResponse', [
+        'inputFields' => [
+            'surveyId' => [
+                'type' => ['non_null' => 'ID'],
+            ],
+            'responses' => [
+                'type' => ['list_of' => 'SurveyResponseInput'],
+            ],
+        ],
+        'outputFields' => [
+            'success' => ['type' => 'Boolean'],
+            'responseId' => ['type' => 'ID'],
+        ],
+        'mutateAndGetPayload' => function ($input) {
+            $response_id = wp_insert_post([
+                'post_type' => 'survey_response',  // Changed from 'nhtbl_survey_response'
+                'post_status' => 'publish',
+                'post_title' => 'Response ' . date('Y-m-d H:i:s'),
+            ]);
+
+            if (is_wp_error($response_id)) {
+                return ['success' => false, 'responseId' => null];
+            }
+
+            update_field('survey_reference', $input['surveyId'], $response_id);
+
+            // Store responses with other_text
+            $responses_data = [];
+            foreach ($input['responses'] as $response) {
+                $responses_data[] = [
+                    'question_key' => $response['questionKey'],
+                    'answer' => $response['answer'],
+                    'other_text' => $response['otherText'] ?? '',
+                ];
+            }
+            update_field('responses', $responses_data, $response_id);
+            update_field('submitted_at', current_time('mysql'), $response_id);
+
+            return [
+                'success' => true,
+                'responseId' => $response_id,
+            ];
+        },
+    ]);
+
+    // Register input type
+    register_graphql_input_type('SurveyResponseInput', [
+        'fields' => [
+            'questionKey' => ['type' => ['non_null' => 'String']],
+            'answer' => ['type' => ['non_null' => 'String']],
+            'otherText' => ['type' => 'String'],
+        ],
+    ]);
 });
