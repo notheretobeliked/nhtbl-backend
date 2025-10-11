@@ -73,7 +73,9 @@
     "ashhitch/wp-graphql-yoast-seo": "^4",
     "wpackagist-plugin/simple-custom-post-order": "^2",
     "doreybenjamin/wp-webhook-vercel-deploy": "^1",
-    "wp-graphql/wpgraphql-acf": "*"
+    "wp-graphql/wpgraphql-acf": "*",
+    "ksubileau/color-thief-php": "^2.0",
+    "wpackagist-plugin/regenerate-thumbnails": "^3.1"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.7.1",

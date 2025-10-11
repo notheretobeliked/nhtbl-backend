@@ -86,6 +86,23 @@ add_action('after_setup_theme', function () {
     add_theme_support('post-thumbnails');
 
     /**
+     * Remove default WordPress image sizes and add custom ones
+     */
+    // Remove default sizes
+    remove_image_size('thumbnail');
+    remove_image_size('medium');
+    remove_image_size('medium_large'); 
+    remove_image_size('large');
+
+    // Add custom image sizes - width only, proportional height
+    add_image_size('thumbnail', 300, 0, false);      // 300px wide, proportional height
+    add_image_size('small', 600, 0, false);         // 600px wide, proportional height  
+    add_image_size('medium', 900, 0, false);        // 900px wide, proportional height
+    add_image_size('medium_large', 1200, 0, false); // 1200px wide, proportional height
+    add_image_size('large', 1600, 0, false);        // 1600px wide, proportional height
+    add_image_size('x_large', 2400, 0, false);      // 2400px wide, proportional height
+
+    /**
      * Enable responsive embed support.
      *
      * @link https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-support/#responsive-embedded-content
@@ -116,6 +133,15 @@ add_action('after_setup_theme', function () {
      */
     add_theme_support('customize-selective-refresh-widgets');
 }, 20);
+
+/**
+ * Make custom image sizes available in admin
+ */
+add_filter('image_size_names_choose', function ($sizes) {
+    return array_merge($sizes, [
+        'x_large' => __('Extra Large'),
+    ]);
+});
 
 /**
  * 
@@ -194,10 +220,28 @@ add_filter('graphql_resolve_field', function ($result, $source, $args, $context,
 
 
 /**
+ * Configure WebP Uploads plugin to generate both WebP and AVIF
+ */
+add_filter('webp_uploads_upload_image_mime_transforms', function($transforms) {
+    // Ensure both WebP and AVIF are generated
+    return [
+        'image/jpeg' => ['image/webp', 'image/avif'],
+        'image/png' => ['image/webp', 'image/avif'],
+        'image/gif' => ['image/webp'],
+    ];
+});
+
+/**
+ * Initialize Image Color Analysis
+ */
+require_once get_template_directory() . '/app/ImageColors.php';
+
+/**
  * Initialize Image Migration Admin Tool
  */
 if (is_admin()) {
     require_once get_template_directory() . '/app/Admin/ImageMigration.php';
+    require_once get_template_directory() . '/app/Admin/ImageColorBatch.php';
 }
 
 /**
