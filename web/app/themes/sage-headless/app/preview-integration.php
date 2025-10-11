@@ -14,26 +14,22 @@ function get_frontend_urls() {
     // Get environment from WP_ENV constant (set in Bedrock)
     $env = defined('WP_ENV') ? WP_ENV : 'production';
     
-    // Use environment variables for frontend URLs
     switch ($env) {
         case 'development':
-            $frontend_url = $_ENV['SVELTEKIT_FRONTEND_DEV'] ?? 'http://localhost:5173';
             return [
-                'frontend' => $frontend_url,
-                'allowed_origins' => [$frontend_url]
+                'frontend' => 'http://localhost:5013',
+                'allowed_origins' => ['http://localhost:5013']
             ];
         case 'staging':
-            $frontend_url = $_ENV['SVELTEKIT_FRONTEND_STAGING'] ?? 'https://staging.heatstrike.uk';
             return [
-                'frontend' => $frontend_url,
-                'allowed_origins' => [$frontend_url]
+                'frontend' => 'https://stg.nhtbl.studio', // If you have staging
+                'allowed_origins' => ['https://stg.nhtbl.studio']
             ];
         case 'production':
         default:
-            $frontend_url = $_ENV['SVELTEKIT_FRONTEND_PROD'] ?? 'https://heatstrike.uk';
             return [
-                'frontend' => $frontend_url,
-                'allowed_origins' => [$frontend_url]
+                'frontend' => 'https://www.notheretobeliked.studio',
+                'allowed_origins' => ['https://www.notheretobeliked.studio']
             ];
     }
 }
@@ -177,11 +173,11 @@ add_filter('preview_post_link', function($preview_link, $post) {
     // Create preview URL with token
     switch ($post->post_type) {
         case 'post':
-            return $frontend_url . '/?preview=true&p=' . $post->ID . '&token=' . $token;
+            return $frontend_url . '/preview?preview=true&p=' . $post->ID . '&token=' . $token;
         case 'page':
-            return $frontend_url . '/?preview=true&page_id=' . $post->ID . '&token=' . $token;
+            return $frontend_url . '/preview?preview=true&page_id=' . $post->ID . '&token=' . $token;
         default:
-            return $frontend_url . '/?preview=true&p=' . $post->ID . '&post_type=' . $post->post_type . '&token=' . $token;
+            return $frontend_url . '/preview?preview=true&p=' . $post->ID . '&post_type=' . $post->post_type . '&token=' . $token;
     }
 }, 10, 2);
 
@@ -195,7 +191,7 @@ add_filter('page_link', function($link, $post_id, $sample) {
         
         $token = generate_preview_token($post_id);
         if ($token) {
-            return $frontend_url . '/?preview=true&page_id=' . $post_id . '&token=' . $token;
+            return $frontend_url . '/preview?preview=true&page_id=' . $post_id . '&token=' . $token;
         }
     }
     return $link;
@@ -211,7 +207,7 @@ add_filter('get_sample_permalink', function($permalink, $post_id, $title, $name,
         
         $token = generate_preview_token($post_id);
         if ($token && isset($permalink[0])) {
-            $preview_url = $frontend_url . '/?preview=true&';
+            $preview_url = $frontend_url . '/preview?preview=true&';
             if ($post->post_type === 'page') {
                 $preview_url .= 'page_id=' . $post_id;
             } else {

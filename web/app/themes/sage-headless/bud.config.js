@@ -17,6 +17,10 @@ export default async (app) => {
     .entry('app', ['@scripts/app', '@styles/app'])
     .entry('editor', ['@scripts/editor', '@styles/editor'])
     .assets(['images'])
+    .copy({
+      from: 'block-assets',
+      to: 'block-assets',
+    })
 
   /**
    * Set public path
