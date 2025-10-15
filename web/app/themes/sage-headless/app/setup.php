@@ -251,11 +251,15 @@ add_filter('webp_uploads_upload_image_mime_transforms', function($transforms) {
 require_once get_template_directory() . '/app/ImageColors.php';
 
 /**
- * Initialize Image Migration Admin Tool
+ * Initialize Admin Tools
  */
 if (is_admin()) {
     require_once get_template_directory() . '/app/Admin/ImageMigration.php';
     require_once get_template_directory() . '/app/Admin/ImageColorBatch.php';
+    require_once get_template_directory() . '/app/Admin/SurveyExport.php';
+    
+    // Initialize Survey Export
+    new \App\Admin\SurveyExport();
 }
 
 /**
@@ -368,14 +372,26 @@ add_action('graphql_register_types', function () {
                 return ['success' => false, 'responseId' => null];
             }
 
-            update_field('survey_reference', $input['surveyId'], $response_id);
+            // Convert GraphQL ID to WordPress post ID if needed
+            $survey_post_id = $input['surveyId'];
+            if (strpos($survey_post_id, 'cG9zdDo') === 0) {
+                // This is a base64 encoded GraphQL ID, decode it
+                $decoded = base64_decode($survey_post_id);
+                if (strpos($decoded, 'post:') === 0) {
+                    $survey_post_id = intval(str_replace('post:', '', $decoded));
+                }
+            }
+            
+            update_field('survey_reference', $survey_post_id, $response_id);
 
-            // Store responses with other_text
+            // Store responses with all fields
             $responses_data = [];
             foreach ($input['responses'] as $response) {
                 $responses_data[] = [
                     'question_key' => $response['questionKey'],
-                    'answer' => $response['answer'],
+                    'question_text' => $response['questionText'] ?? '',
+                    'answer_key' => $response['answerKey'] ?? '',
+                    'answer_text' => $response['answerText'] ?? $response['answer'] ?? '', // Backward compatibility
                     'other_text' => $response['otherText'] ?? '',
                 ];
             }
@@ -393,8 +409,12 @@ add_action('graphql_register_types', function () {
     register_graphql_input_type('SurveyResponseInput', [
         'fields' => [
             'questionKey' => ['type' => ['non_null' => 'String']],
-            'answer' => ['type' => ['non_null' => 'String']],
+            'questionText' => ['type' => 'String'],
+            'answerKey' => ['type' => 'String'],
+            'answerText' => ['type' => 'String'],
+            'answer' => ['type' => 'String'], // Backward compatibility
             'otherText' => ['type' => 'String'],
         ],
     ]);
 });
+

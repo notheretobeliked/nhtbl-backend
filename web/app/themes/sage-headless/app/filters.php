@@ -42,41 +42,46 @@ add_action('acf/save_post', function ($post_id) {
     // Get all field groups for this post
     $field_groups = acf_get_field_groups(['post_id' => $post_id]);
     
+    // Initialize global question counter for this save operation
+    $global_question_counter = 0;
+    
     foreach ($field_groups as $field_group) {
         $fields = acf_get_fields($field_group);
-        process_fields_for_keys($fields, $post_id);
+        $global_question_counter = process_fields_for_keys($fields, $post_id, '', $global_question_counter);
     }
 }, 20);
 
 /**
  * Recursively process fields to find and update survey block fields
  */
-function process_fields_for_keys($fields, $post_id, $parent_key = '') {
-    if (!$fields) return;
+function process_fields_for_keys($fields, $post_id, $parent_key = '', $global_question_counter = 0) {
+    if (!$fields) return $global_question_counter;
     
     foreach ($fields as $field) {
         $field_key = $parent_key ? $parent_key . '_' . $field['name'] : $field['name'];
         
         // Check if this is a survey block repeater
         if ($field['type'] === 'repeater' && $field['name'] === 'questions') {
-            process_questions_repeater($field_key, $post_id);
+            $global_question_counter = process_questions_repeater($field_key, $post_id, $global_question_counter);
         }
         
         // Recursively process sub-fields
         if (!empty($field['sub_fields'])) {
-            process_fields_for_keys($field['sub_fields'], $post_id, $field_key);
+            $global_question_counter = process_fields_for_keys($field['sub_fields'], $post_id, $field_key, $global_question_counter);
         }
     }
+    
+    return $global_question_counter;
 }
 
 /**
- * Process questions repeater to generate keys
+ * Process questions repeater to generate keys with global numbering
  */
-function process_questions_repeater($field_key, $post_id) {
+function process_questions_repeater($field_key, $post_id, $global_question_counter) {
     $questions = get_field($field_key, $post_id);
     
     if (!$questions || !is_array($questions)) {
-        return;
+        return $global_question_counter;
     }
     
     $updated = false;
@@ -84,9 +89,13 @@ function process_questions_repeater($field_key, $post_id) {
     foreach ($questions as $question_index => $question) {
         // Generate question key if missing
         if (!empty($question['question_text']) && empty($question['question_key'])) {
-            $prefix = 'q' . ($question_index + 1);
+            $global_question_counter++;
+            $prefix = 'q' . $global_question_counter;
             $questions[$question_index]['question_key'] = generate_unique_key($question['question_text'], $prefix);
             $updated = true;
+        } else if (!empty($question['question_key'])) {
+            // If question already has a key, still increment counter to maintain sequence
+            $global_question_counter++;
         }
         
         // Process options if they exist
@@ -104,6 +113,8 @@ function process_questions_repeater($field_key, $post_id) {
     if ($updated) {
         update_field($field_key, $questions, $post_id);
     }
+    
+    return $global_question_counter;
 }
 
 /**
@@ -213,6 +224,34 @@ add_action('acf/input/admin_footer', function() {
             };
         }
         
+        // Function to calculate global question number across all survey blocks
+        function calculateGlobalQuestionNumber($field) {
+            let globalQuestionNumber = 0;
+            let foundCurrentField = false;
+            
+            // Find the current field's question row first
+            const $currentQuestionRow = $field.closest('.acf-row');
+            
+            // Find all question rows across all repeaters on the page
+            const $allQuestionRows = $('.acf-field-repeater').find('.acf-row:not(.acf-clone)').filter(function() {
+                // Only count rows that have question_text fields (are question rows)
+                return $(this).find('[data-name*="question_text"], [name*="question_text"]').length > 0;
+            });
+            
+            // Count through all question rows until we find the current one
+            $allQuestionRows.each(function(index) {
+                globalQuestionNumber++;
+                
+                // Check if this is the current field's row
+                if ($(this).is($currentQuestionRow)) {
+                    foundCurrentField = true;
+                    return false; // Break the loop
+                }
+            });
+            
+            return globalQuestionNumber || 1; // Default to 1 if calculation fails
+        }
+        
         // Function to generate key for a field
         function generateKeyForField($field, value, prefix = '', maxLength = 40) {
             if (!value || value.length < 2) return; // Don't generate for very short values
@@ -225,9 +264,8 @@ add_action('acf/input/admin_footer', function() {
                     $keyField = $field.closest('.acf-row').find('input[name*="question_key"]');
                 }
                 if (!prefix) {
-                    const $row = $field.closest('.acf-row');
-                    const rowIndex = $row.index();
-                    prefix = 'q' + (rowIndex + 1);
+                    const globalQuestionNumber = calculateGlobalQuestionNumber($field);
+                    prefix = 'q' + globalQuestionNumber;
                 }
             } else if ($field.is('[data-name="option_label"], [name*="option_label"]')) {
                 $keyField = $field.closest('.acf-row').find('input[data-name="option_value"]');
@@ -250,13 +288,84 @@ add_action('acf/input/admin_footer', function() {
         // Debounced version for input events
         const debouncedGenerateKey = debounce(generateKeyForField, 500);
         
+        // Function to populate Likert scale options
+        function populateLikertOptions($questionRow) {
+            const likertOptions = [
+                'Strongly disagree',
+                'Disagree', 
+                'Neither agree nor disagree',
+                'Agree',
+                'Strongly agree'
+            ];
+            
+            // Find the options repeater
+            let $optionsRepeater = $questionRow.find('[data-name="options"]');
+            if (!$optionsRepeater.length) {
+                $optionsRepeater = $questionRow.find('.acf-field-repeater').filter(function() {
+                    return $(this).find('[data-name*="option"]').length > 0;
+                });
+            }
+            
+            if (!$optionsRepeater.length) {
+                return;
+            }
+            
+            // Clear existing options first
+            const $existingRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
+            $existingRows.remove();
+            
+            // Use button clicking approach - more reliable
+            const $addButton = $optionsRepeater.find('.acf-button[data-event="add-row"]');
+            if ($addButton.length) {
+                likertOptions.forEach(function(optionText, index) {
+                    // Click the add button
+                    $addButton.trigger('click');
+                    
+                    // Wait for the row to be created, then populate it
+                    setTimeout(function() {
+                        const $newRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
+                        const $targetRow = $newRows.eq(index);
+                        
+                        if ($targetRow.length) {
+                            populateOptionRow($targetRow, optionText);
+                        }
+                    }, 200 * (index + 1)); // Stagger the population
+                });
+            }
+        }
+        
+        // Helper function to populate an option row
+        function populateOptionRow($row, optionText) {
+            // Find and populate the option label
+            let $optionLabel = $row.find('input[data-name="option_label"]');
+            if (!$optionLabel.length) {
+                $optionLabel = $row.find('input[name*="option_label"]');
+            }
+            
+            if ($optionLabel.length) {
+                $optionLabel.val(optionText);
+                
+                // Generate and set the option value key
+                const optionKey = generateKey(optionText, '', 30);
+                let $optionValue = $row.find('input[data-name="option_value"]');
+                if (!$optionValue.length) {
+                    $optionValue = $row.find('input[name*="option_value"]');
+                }
+                
+                if ($optionValue.length) {
+                    $optionValue.val(optionKey);
+                }
+            }
+        }
+        
         // More robust event handling
         function attachHandlers() {
             const questionSelectors = 'input[data-name="question_text"], textarea[data-name="question_text"], input[name*="question_text"], textarea[name*="question_text"]';
             const optionSelectors = 'input[data-name="option_label"], input[name*="option_label"]';
+            const questionTypeSelectors = 'select[data-name="question_type"], select[name*="question_type"]';
             
             // Remove existing handlers
-            $(document).off('blur.survey-auto-key focusout.survey-auto-key input.survey-auto-key-debounced');
+            $(document).off('blur.survey-auto-key focusout.survey-auto-key input.survey-auto-key-debounced change.survey-likert');
             
             // Primary trigger: on blur/focusout (when user leaves the field)
             $(document).on('blur.survey-auto-key focusout.survey-auto-key', questionSelectors + ', ' + optionSelectors, function() {
@@ -274,6 +383,32 @@ add_action('acf/input/admin_footer', function() {
                 // Only trigger debounced generation if the value looks like it was pasted (longer than 10 chars)
                 if (value.length > 10) {
                     debouncedGenerateKey($this, value);
+                }
+            });
+            
+            // Handle question type changes for Likert scale
+            $(document).on('change.survey-likert', questionTypeSelectors, function() {
+                const $this = $(this);
+                const selectedValue = $this.val();
+                
+                if (selectedValue === 'likert_scale') {
+                    const $questionRow = $this.closest('.acf-row');
+                    if ($questionRow.length) {
+                        populateLikertOptions($questionRow);
+                    }
+                }
+            });
+            
+            // Also try to catch changes with a more general selector
+            $(document).on('change', 'select', function() {
+                const $this = $(this);
+                const name = $this.attr('name') || $this.attr('data-name') || '';
+                
+                if (name.includes('question_type') && $this.val() === 'likert_scale') {
+                    const $questionRow = $this.closest('.acf-row');
+                    if ($questionRow.length) {
+                        populateLikertOptions($questionRow);
+                    }
                 }
             });
         }

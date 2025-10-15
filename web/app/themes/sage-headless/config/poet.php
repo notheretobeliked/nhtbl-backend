@@ -65,20 +65,32 @@ return [
         ],
         'survey_response' => [
             'enter_title_here' => 'Enter survey response',
-            'menu_icon' => 'dashicons-admin-appearance',
+            'menu_icon' => 'dashicons-feedback',
             'supports' => ['title', 'custom-fields'],
             'show_in_rest' => true,
-            'public' => false,
-            'publicly_queryable' => true,
+            'public' => true,
+            'show_ui' => true,
+            'show_in_menu' => true,
+            'show_in_admin_bar' => true,
+            'publicly_queryable' => false, // Don't show on frontend
             'has_archive' => false,
-            'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
+            'show_in_graphql' => true,
             'graphql_single_name' => 'nhtbl_surveyResponse',
-            'graphql_plural_name' => 'nhtbl_surveyResponses', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
+            'graphql_plural_name' => 'nhtbl_surveyResponses',
             'labels' => [
-                'singular' => 'Survey response',
-                'plural' => 'Survey responses',
+                'singular' => 'Survey Response',
+                'plural' => 'Survey Responses',
+                'add_new' => 'Add New Response',
+                'add_new_item' => 'Add New Survey Response',
+                'edit_item' => 'Edit Survey Response',
+                'new_item' => 'New Survey Response',
+                'view_item' => 'View Survey Response',
+                'search_items' => 'Search Survey Responses',
+                'not_found' => 'No survey responses found',
+                'not_found_in_trash' => 'No survey responses found in trash',
+                'menu_name' => 'Survey Responses',
             ],
-
+            'capability_type' => 'post',
         ],
     ],
 

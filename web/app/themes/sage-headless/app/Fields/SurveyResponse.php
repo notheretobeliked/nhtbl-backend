@@ -21,8 +21,9 @@ class SurveyResponse extends Field
 
         $surveyResponse
             ->addPostObject('survey_reference', [
-                'label' => 'Survey',
-                'post_type' => ['survey'],
+                'label' => 'Survey (Page/Post)',
+                'instructions' => 'The page or post that contains the survey block',
+                'post_type' => ['page', 'post', 'survey'],
                 'return_format' => 'id',
                 'required' => true,
             ])
@@ -40,48 +41,25 @@ class SurveyResponse extends Field
                     'label' => 'Question Key',
                     'required' => true,
                 ])
-                ->addTextarea('answer', [
-                    'label' => 'Answer',
+                ->addTextarea('question_text', [
+                    'label' => 'Question Text (as asked)',
+                    'instructions' => 'The actual question text when the response was submitted',
+                    'rows' => 2,
+                ])
+                ->addText('answer_key', [
+                    'label' => 'Answer Key',
+                    'instructions' => 'The option key selected (for multiple choice/likert)',
+                ])
+                ->addTextarea('answer_text', [
+                    'label' => 'Answer Text',
+                    'instructions' => 'The actual answer text',
                     'rows' => 2,
                 ])
                 ->addText('other_text', [
                     'label' => 'Other Response Text',
                     'instructions' => 'Free text when user selects "Other"',
                 ])
-            ->endRepeater()
-            ->addGroup('demographics', [
-                'label' => 'Demographics (Optional)',
-            ])
-                ->addNumber('age', [
-                    'label' => 'Age',
-                ])
-                ->addSelect('gender', [
-                    'label' => 'Gender',
-                    'choices' => [
-                        'male' => 'Male',
-                        'female' => 'Female',
-                        'nonbinary' => 'Nonbinary',
-                        'other' => 'Other / Prefer not to say',
-                    ],
-                    'allow_null' => true,
-                ])
-                ->addTrueFalse('lives_near_norwich', [
-                    'label' => 'Lives within 25 miles of Norwich',
-                    'ui' => true,
-                ])
-                ->addSelect('education', [
-                    'label' => 'Highest Level of Education',
-                    'choices' => [
-                        'primary' => 'Primary school',
-                        'secondary_16' => 'Secondary school up to 16 years',
-                        'further' => 'Higher or secondary or further education (A-levels, BTEC, etc.)',
-                        'university' => 'College or university',
-                        'postgraduate' => 'Post-graduate degree',
-                        'prefer_not_say' => 'Prefer not to say',
-                    ],
-                    'allow_null' => true,
-                ])
-            ->endGroup();
+            ->endRepeater();
 
         return $surveyResponse->build();
     }
