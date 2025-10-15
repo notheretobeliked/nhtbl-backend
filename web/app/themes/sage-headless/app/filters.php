@@ -30,56 +30,306 @@ add_filter('acf/save_post', function ($post_id) {
 });
 
 /**
- * Auto-generate question keys when question text is saved
+ * Auto-generate question keys and option values using ACF save_post hook
+ * This processes all survey blocks in a post after saving
  */
-add_filter('acf/update_value/name=question_text', function ($value, $post_id, $field, $original) {
-    // Get the parent field (questions repeater)
-    $parent = $field['parent'] ?? null;
-	error_log($parent);
-    
-    if ($parent) {
-        // Get current row index
-        $row_index = acf_maybe_get($field, 'row_index');
-		error_log(print_r($row_index, true));
-        
-        if ($row_index !== null) {
-            // Get the question_key field for this row
-            $question_key = get_sub_field('question_key');
-            
-            // Generate key if empty
-            if (empty($question_key) && !empty($value)) {
-                update_sub_field('question_key', generate_unique_key($value));
-            }
-        }
+add_action('acf/save_post', function ($post_id) {
+    // Only process if we have ACF functions available
+    if (!function_exists('get_field') || !function_exists('update_field')) {
+        return;
     }
     
-    return $value;
-}, 10, 4);
+    error_log('Processing post save for post ID: ' . $post_id);
+    
+    // Get all field groups for this post
+    $field_groups = acf_get_field_groups(['post_id' => $post_id]);
+    
+    foreach ($field_groups as $field_group) {
+        $fields = acf_get_fields($field_group);
+        process_fields_for_keys($fields, $post_id);
+    }
+}, 20);
 
 /**
- * Auto-generate option values when option label is saved
+ * Recursively process fields to find and update survey block fields
  */
-add_filter('acf/update_value/name=option_label', function ($value, $post_id, $field, $original) {
-    // Get the parent field (options repeater)
-    $parent = $field['parent'] ?? null;
+function process_fields_for_keys($fields, $post_id, $parent_key = '') {
+    if (!$fields) return;
     
-    if ($parent) {
-        // Get current row index
-        $row_index = acf_maybe_get($field, 'row_index');
+    foreach ($fields as $field) {
+        $field_key = $parent_key ? $parent_key . '_' . $field['name'] : $field['name'];
         
-        if ($row_index !== null) {
-            // Get the option_value field for this row
-            $option_value = get_sub_field('option_value');
-            
-            // Generate value if empty
-            if (empty($option_value) && !empty($value)) {
-                update_sub_field('option_value', generate_unique_key($value, '', 30));
+        // Check if this is a survey block repeater
+        if ($field['type'] === 'repeater' && $field['name'] === 'questions') {
+            error_log('Found questions repeater field: ' . $field_key);
+            process_questions_repeater($field_key, $post_id);
+        }
+        
+        // Recursively process sub-fields
+        if (!empty($field['sub_fields'])) {
+            process_fields_for_keys($field['sub_fields'], $post_id, $field_key);
+        }
+    }
+}
+
+/**
+ * Process questions repeater to generate keys
+ */
+function process_questions_repeater($field_key, $post_id) {
+    $questions = get_field($field_key, $post_id);
+    
+    if (!$questions || !is_array($questions)) {
+        error_log('No questions found for field: ' . $field_key);
+        return;
+    }
+    
+    error_log('Processing ' . count($questions) . ' questions');
+    $updated = false;
+    
+    foreach ($questions as $question_index => $question) {
+        // Generate question key if missing
+        if (!empty($question['question_text']) && empty($question['question_key'])) {
+            $prefix = 'q' . ($question_index + 1);
+            $questions[$question_index]['question_key'] = generate_unique_key($question['question_text'], $prefix);
+            $updated = true;
+            error_log('Generated question key for question ' . ($question_index + 1));
+        }
+        
+        // Process options if they exist
+        if (!empty($question['options']) && is_array($question['options'])) {
+            foreach ($question['options'] as $option_index => $option) {
+                if (!empty($option['option_label']) && empty($option['option_value'])) {
+                    $questions[$question_index]['options'][$option_index]['option_value'] = generate_unique_key($option['option_label'], '', 30);
+                    $updated = true;
+                    error_log('Generated option value for question ' . ($question_index + 1) . ', option ' . ($option_index + 1));
+                }
             }
         }
     }
     
+    // Update the field if any changes were made
+    if ($updated) {
+        $result = update_field($field_key, $questions, $post_id);
+        error_log('Updated questions field: ' . ($result ? 'success' : 'failed'));
+    }
+}
+
+/**
+ * Real-time key generation using ACF field update hooks
+ * This approach works better with ACF blocks
+ */
+add_filter('acf/update_value', function ($value, $post_id, $field) {
+    // Debug field information
+    error_log('ACF Field Debug - Key: ' . $field['key'] . ', Name: ' . $field['name'] . ', Value: ' . $value);
+    
+    // Check if this is a survey block field (more flexible check)
+    $is_survey_field = (
+        strpos($field['key'], 'field_survey_block') !== false ||
+        strpos($field['name'], 'survey_block') !== false ||
+        (isset($field['parent']) && strpos($field['parent'], 'survey_block') !== false)
+    );
+    
+    if (!$is_survey_field) {
+        return $value;
+    }
+    
+    error_log('Processing survey field: ' . $field['name']);
+    
+    // Handle question_text fields
+    if (strpos($field['name'], 'question_text') !== false && !empty($value)) {
+        error_log('Processing question_text field');
+        
+        // Get the field name pattern to find corresponding question_key field
+        $field_name = $field['name'];
+        $question_key_field = str_replace('question_text', 'question_key', $field_name);
+        
+        // Extract question number from field name for prefix
+        preg_match('/questions_(\d+)_/', $field_name, $matches);
+        $question_num = isset($matches[1]) ? (int)$matches[1] + 1 : '';
+        $prefix = $question_num ? 'q' . $question_num : '';
+        
+        // Generate and update the question key
+        $generated_key = generate_unique_key($value, $prefix);
+        error_log('Generated question key: ' . $generated_key . ' for field: ' . $question_key_field);
+        
+        // Try immediate update first
+        $updated = update_field($question_key_field, $generated_key, $post_id);
+        error_log('Immediate update result: ' . ($updated ? 'success' : 'failed'));
+        
+        // Also use delayed update as backup
+        add_action('acf/save_post', function($post_id_inner) use ($question_key_field, $generated_key, $post_id) {
+            if ($post_id_inner === $post_id) {
+                $result = update_field($question_key_field, $generated_key, $post_id);
+                error_log('Delayed update result for question_key: ' . ($result ? 'success' : 'failed'));
+            }
+        }, 25);
+    }
+    
+    // Handle option_label fields
+    if (strpos($field['name'], 'option_label') !== false && !empty($value)) {
+        error_log('Processing option_label field');
+        
+        $field_name = $field['name'];
+        $option_value_field = str_replace('option_label', 'option_value', $field_name);
+        
+        // Generate option value
+        $generated_value = generate_unique_key($value, '', 30);
+        error_log('Generated option value: ' . $generated_value . ' for field: ' . $option_value_field);
+        
+        // Try immediate update first
+        $updated = update_field($option_value_field, $generated_value, $post_id);
+        error_log('Immediate update result: ' . ($updated ? 'success' : 'failed'));
+        
+        // Also use delayed update as backup
+        add_action('acf/save_post', function($post_id_inner) use ($option_value_field, $generated_value, $post_id) {
+            if ($post_id_inner === $post_id) {
+                $result = update_field($option_value_field, $generated_value, $post_id);
+                error_log('Delayed update result for option_value: ' . ($result ? 'success' : 'failed'));
+            }
+        }, 25);
+    }
+    
     return $value;
-}, 10, 4);
+}, 10, 3);
+
+/**
+ * JavaScript-based approach for immediate feedback in the admin
+ */
+add_action('acf/input/admin_footer', function() {
+    ?>
+    <script type="text/javascript">
+    (function($) {
+        if (typeof acf === 'undefined') return;
+        
+        console.log('Survey Block Auto-Key Generator loaded');
+        
+        // Function to generate key from text
+        function generateKey(text, prefix = '', maxLength = 40) {
+            let key = text.toLowerCase();
+            key = key.replace(/[^a-z0-9\s]/g, '');
+            key = key.replace(/\s+/g, '_').trim();
+            
+            if (prefix) {
+                key = prefix + '_' + key;
+                maxLength = maxLength - prefix.length - 1;
+            }
+            
+            key = key.substring(0, maxLength);
+            key = key.replace(/_+$/, '');
+            
+            // Add simple hash for uniqueness
+            const hash = Math.random().toString(36).substring(2, 6);
+            key = key + '_' + hash;
+            
+            return key;
+        }
+        
+        // Debounce function to prevent excessive key generation
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Function to generate key for a field
+        function generateKeyForField($field, value, prefix = '', maxLength = 40) {
+            if (!value || value.length < 2) return; // Don't generate for very short values
+            
+            // Find the corresponding key field
+            let $keyField;
+            if ($field.is('[data-name="question_text"], [name*="question_text"]')) {
+                $keyField = $field.closest('.acf-row').find('input[data-name="question_key"]');
+                if (!$keyField.length) {
+                    $keyField = $field.closest('.acf-row').find('input[name*="question_key"]');
+                }
+                if (!prefix) {
+                    const $row = $field.closest('.acf-row');
+                    const rowIndex = $row.index();
+                    prefix = 'q' + (rowIndex + 1);
+                }
+            } else if ($field.is('[data-name="option_label"], [name*="option_label"]')) {
+                $keyField = $field.closest('.acf-row').find('input[data-name="option_value"]');
+                if (!$keyField.length) {
+                    $keyField = $field.closest('.acf-row').find('input[name*="option_value"]');
+                }
+                maxLength = 30; // Shorter for option values
+            }
+            
+            if ($keyField && $keyField.length) {
+                const currentValue = $keyField.val().trim();
+                // Only generate if field is completely empty
+                if (!currentValue) {
+                    const key = generateKey(value, prefix, maxLength);
+                    $keyField.val(key);
+                    console.log('Generated key:', key, 'for field:', $field.attr('name') || $field.attr('data-name'));
+                } else {
+                    console.log('Skipping key generation - field already has value:', currentValue);
+                }
+            }
+        }
+        
+        // Debounced version for input events
+        const debouncedGenerateKey = debounce(generateKeyForField, 500);
+        
+        // More robust event handling
+        function attachHandlers() {
+            const questionSelectors = 'input[data-name="question_text"], textarea[data-name="question_text"], input[name*="question_text"], textarea[name*="question_text"]';
+            const optionSelectors = 'input[data-name="option_label"], input[name*="option_label"]';
+            
+            // Remove existing handlers
+            $(document).off('blur.survey-auto-key focusout.survey-auto-key input.survey-auto-key-debounced');
+            
+            // Primary trigger: on blur/focusout (when user leaves the field)
+            $(document).on('blur.survey-auto-key focusout.survey-auto-key', questionSelectors + ', ' + optionSelectors, function() {
+                const $this = $(this);
+                const value = $this.val().trim();
+                
+                console.log('Field focus lost, generating key for:', value);
+                generateKeyForField($this, value);
+            });
+            
+            // Secondary trigger: debounced input for immediate feedback when pasting
+            $(document).on('input.survey-auto-key-debounced', questionSelectors + ', ' + optionSelectors, function() {
+                const $this = $(this);
+                const value = $this.val().trim();
+                
+                // Only trigger debounced generation if the value looks like it was pasted (longer than 10 chars)
+                if (value.length > 10) {
+                    console.log('Detected paste or long input, debounced generation for:', value);
+                    debouncedGenerateKey($this, value);
+                }
+            });
+        }
+        
+        // Initial attachment
+        attachHandlers();
+        
+        // Re-attach when ACF adds new rows
+        if (typeof acf !== 'undefined' && acf.addAction) {
+            acf.addAction('ready_field', function(field) {
+                if (field.get('type') === 'repeater') {
+                    attachHandlers();
+                }
+            });
+            
+            acf.addAction('append_field', function(field) {
+                attachHandlers();
+            });
+        }
+        
+        // Fallback: re-attach periodically
+        setInterval(attachHandlers, 2000);
+        
+    })(jQuery);
+    </script>
+    <?php
+});
 
 /**
  * Generate unique key from text
@@ -91,23 +341,25 @@ function generate_unique_key($text, $prefix = '', $max_length = 40) {
     // Remove special characters, keep alphanumeric and spaces
     $key = preg_replace('/[^a-z0-9\s]/', '', $key);
     
-    // Replace spaces with hyphens
-    $key = preg_replace('/\s+/', '-', trim($key));
+    // Replace spaces with underscores for better compatibility
+    $key = preg_replace('/\s+/', '_', trim($key));
+    
+    // Add prefix if provided
+    if ($prefix) {
+        $key = $prefix . '_' . $key;
+        // Adjust max length to account for prefix
+        $max_length = $max_length - strlen($prefix) - 1;
+    }
     
     // Limit length
     $key = substr($key, 0, $max_length);
     
-    // Add prefix if provided
-    if ($prefix) {
-        $key = $prefix . '-' . $key;
-    }
+    // Remove trailing underscores
+    $key = rtrim($key, '_');
     
-    // Remove trailing hyphens
-    $key = rtrim($key, '-');
-    
-    // Add 5 random characters for uniqueness
-    $random = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 5);
-    $key = $key . '-' . $random;
+    // Add a hash suffix for uniqueness (more deterministic than random)
+    $hash = substr(md5($text . time()), 0, 4);
+    $key = $key . '_' . $hash;
     
     return $key;
 }

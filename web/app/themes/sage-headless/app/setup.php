@@ -9,6 +9,20 @@ namespace App;
 use function Roots\bundle;
 
 /**
+ * Disable automatic translation updates and WordPress.org API calls
+ * to prevent connection errors in local development
+ */
+add_filter('auto_update_translation', '__return_false');
+add_filter('translations_api', '__return_false');
+add_filter('pre_http_request', function($preempt, $parsed_args, $url) {
+    // Block requests to WordPress.org API endpoints
+    if (strpos($url, 'api.wordpress.org') !== false) {
+        return new \WP_Error('http_request_failed', 'Blocked WordPress.org API request');
+    }
+    return $preempt;
+}, 10, 3);
+
+/**
  * Register the theme assets.
  *
  * @return void

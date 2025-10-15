@@ -91,11 +91,9 @@ class SurveyBlock extends Block
             ])
                 ->addText('question_key', [
                     'label' => 'Question Key',
-                    'instructions' => 'Auto-generated unique identifier (do not edit)',
-                    'readonly' => 1,
-                    'disabled' => 1,
+                    'instructions' => 'Auto-generated unique identifier (auto-fills when you type question text, but you can edit it)',
                     'wrapper' => [
-                        'class' => 'acf-hidden',
+                        'width' => '50',
                     ],
                 ])
                 ->addTextarea('question_text', [
@@ -188,9 +186,7 @@ class SurveyBlock extends Block
                     ])
                     ->addText('option_value', [
                         'label' => 'Option Value',
-                        'instructions' => 'Auto-generated (do not edit)',
-                        'readonly' => 1,
-                        'disabled' => 0,
+                        'instructions' => 'Auto-generated (auto-fills when you type option label, but you can edit it)',
                     ])
                 ->endRepeater()
             ->endRepeater();
