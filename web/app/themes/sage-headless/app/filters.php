@@ -310,27 +310,37 @@ add_action('acf/input/admin_footer', function() {
                 return;
             }
             
-            // Clear existing options first
+            // Check if already populated to avoid duplicate work
             const $existingRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
+            if ($existingRows.length === likertOptions.length) {
+                // Check if first row has the expected value
+                const firstRowValue = $existingRows.first().find('input[data-name="option_label"], input[name*="option_label"]').val();
+                if (firstRowValue === likertOptions[0]) {
+                    return; // Already populated correctly
+                }
+            }
+            
+            // Clear existing options
             $existingRows.remove();
             
-            // Use button clicking approach - more reliable
+            // Use button clicking approach - but optimized
             const $addButton = $optionsRepeater.find('.acf-button[data-event="add-row"]');
             if ($addButton.length) {
-                likertOptions.forEach(function(optionText, index) {
-                    // Click the add button
+                // Add all rows at once without delays
+                likertOptions.forEach(function() {
                     $addButton.trigger('click');
-                    
-                    // Wait for the row to be created, then populate it
-                    setTimeout(function() {
-                        const $newRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
+                });
+                
+                // Populate all rows after they're created (single timeout)
+                setTimeout(function() {
+                    const $newRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
+                    likertOptions.forEach(function(optionText, index) {
                         const $targetRow = $newRows.eq(index);
-                        
                         if ($targetRow.length) {
                             populateOptionRow($targetRow, optionText);
                         }
-                    }, 200 * (index + 1)); // Stagger the population
-                });
+                    });
+                }, 100); // Single short timeout instead of staggered ones
             }
         }
         
@@ -386,6 +396,11 @@ add_action('acf/input/admin_footer', function() {
                 }
             });
             
+            // Throttled Likert population to prevent excessive calls
+            const throttledPopulateLikert = debounce(function($questionRow) {
+                populateLikertOptions($questionRow);
+            }, 300);
+            
             // Handle question type changes for Likert scale
             $(document).on('change.survey-likert', questionTypeSelectors, function() {
                 const $this = $(this);
@@ -394,12 +409,12 @@ add_action('acf/input/admin_footer', function() {
                 if (selectedValue === 'likert_scale') {
                     const $questionRow = $this.closest('.acf-row');
                     if ($questionRow.length) {
-                        populateLikertOptions($questionRow);
+                        throttledPopulateLikert($questionRow);
                     }
                 }
             });
             
-            // Also try to catch changes with a more general selector
+            // Also try to catch changes with a more general selector (throttled)
             $(document).on('change', 'select', function() {
                 const $this = $(this);
                 const name = $this.attr('name') || $this.attr('data-name') || '';
@@ -407,7 +422,7 @@ add_action('acf/input/admin_footer', function() {
                 if (name.includes('question_type') && $this.val() === 'likert_scale') {
                     const $questionRow = $this.closest('.acf-row');
                     if ($questionRow.length) {
-                        populateLikertOptions($questionRow);
+                        throttledPopulateLikert($questionRow);
                     }
                 }
             });
@@ -430,7 +445,8 @@ add_action('acf/input/admin_footer', function() {
         }
         
         // Fallback: re-attach periodically
-        setInterval(attachHandlers, 2000);
+        // Reduced frequency fallback re-attachment for better performance
+        setInterval(attachHandlers, 5000);
         
     })(jQuery);
     </script>
