@@ -363,7 +363,7 @@ add_action('graphql_register_types', function () {
         ],
         'mutateAndGetPayload' => function ($input) {
             $response_id = wp_insert_post([
-                'post_type' => 'survey_response',  // Changed from 'nhtbl_survey_response'
+                'post_type' => 'survey_response',
                 'post_status' => 'publish',
                 'post_title' => 'Response ' . date('Y-m-d H:i:s'),
             ]);
@@ -375,7 +375,6 @@ add_action('graphql_register_types', function () {
             // Convert GraphQL ID to WordPress post ID if needed
             $survey_post_id = $input['surveyId'];
             if (strpos($survey_post_id, 'cG9zdDo') === 0) {
-                // This is a base64 encoded GraphQL ID, decode it
                 $decoded = base64_decode($survey_post_id);
                 if (strpos($decoded, 'post:') === 0) {
                     $survey_post_id = intval(str_replace('post:', '', $decoded));
@@ -391,10 +390,11 @@ add_action('graphql_register_types', function () {
                     'question_key' => $response['questionKey'],
                     'question_text' => $response['questionText'] ?? '',
                     'answer_key' => $response['answerKey'] ?? '',
-                    'answer_text' => $response['answerText'] ?? $response['answer'] ?? '', // Backward compatibility
+                    'answer_text' => $response['answerText'] ?? $response['answer'] ?? '',
                     'other_text' => $response['otherText'] ?? '',
                 ];
             }
+            
             update_field('responses', $responses_data, $response_id);
             update_field('submitted_at', current_time('mysql'), $response_id);
 
