@@ -253,7 +253,7 @@ add_action('acf/input/admin_footer', function() {
         }
         
         // Function to generate key for a field
-        function generateKeyForField($field, value, prefix = '', maxLength = 40) {
+        function generateKeyForField($field, value, prefix = '', maxLength = 40, userTriggered = false) {
             if (!value || value.length < 2) return; // Don't generate for very short values
             
             // Find the corresponding key field
@@ -277,8 +277,8 @@ add_action('acf/input/admin_footer', function() {
             
             if ($keyField && $keyField.length) {
                 const currentValue = $keyField.val().trim();
-                // Only generate if field is completely empty
-                if (!currentValue) {
+                // Only generate if field is completely empty AND this is user-triggered
+                if (!currentValue && userTriggered) {
                     const key = generateKey(value, prefix, maxLength);
                     $keyField.val(key);
                 }
@@ -286,7 +286,9 @@ add_action('acf/input/admin_footer', function() {
         }
         
         // Debounced version for input events
-        const debouncedGenerateKey = debounce(generateKeyForField, 500);
+        const debouncedGenerateKey = debounce(function($field, value, prefix, maxLength, userTriggered) {
+            generateKeyForField($field, value, prefix, maxLength, userTriggered);
+        }, 500);
         
         // Function to populate Likert scale options
         function populateLikertOptions($questionRow) {
@@ -323,24 +325,23 @@ add_action('acf/input/admin_footer', function() {
             // Clear existing options
             $existingRows.remove();
             
-            // Use button clicking approach - but optimized
+            // Use button clicking approach - back to staggered for ACF validation
             const $addButton = $optionsRepeater.find('.acf-button[data-event="add-row"]');
             if ($addButton.length) {
-                // Add all rows at once without delays
-                likertOptions.forEach(function() {
+                likertOptions.forEach(function(optionText, index) {
+                    // Click the add button
                     $addButton.trigger('click');
-                });
-                
-                // Populate all rows after they're created (single timeout)
-                setTimeout(function() {
-                    const $newRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
-                    likertOptions.forEach(function(optionText, index) {
+                    
+                    // Wait for the row to be created, then populate it
+                    setTimeout(function() {
+                        const $newRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
                         const $targetRow = $newRows.eq(index);
+                        
                         if ($targetRow.length) {
                             populateOptionRow($targetRow, optionText);
                         }
-                    });
-                }, 100); // Single short timeout instead of staggered ones
+                    }, 150 * (index + 1)); // Reduced but still staggered for ACF
+                });
             }
         }
         
@@ -382,7 +383,7 @@ add_action('acf/input/admin_footer', function() {
                 const $this = $(this);
                 const value = $this.val().trim();
                 
-                generateKeyForField($this, value);
+                generateKeyForField($this, value, '', 40, true); // userTriggered = true
             });
             
             // Secondary trigger: debounced input for immediate feedback when pasting
@@ -392,7 +393,7 @@ add_action('acf/input/admin_footer', function() {
                 
                 // Only trigger debounced generation if the value looks like it was pasted (longer than 10 chars)
                 if (value.length > 10) {
-                    debouncedGenerateKey($this, value);
+                    debouncedGenerateKey($this, value, '', 40, true); // userTriggered = true
                 }
             });
             
