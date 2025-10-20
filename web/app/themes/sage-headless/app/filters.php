@@ -4,7 +4,37 @@
  * Theme filters.
  */
 
-namespace App;
+ namespace App;
+
+ 
+/**
+ * Disable WordPress.org API calls to prevent SSL errors
+ */
+add_filter('pre_http_request', function ($preempt, $parsed_args, $url) {
+    // Block requests to WordPress.org API endpoints
+    if (strpos($url, 'wordpress.org') !== false || 
+        strpos($url, 'api.wordpress.org') !== false || 
+        strpos($url, 'downloads.wordpress.org') !== false ||
+        strpos($url, 's.w.org') !== false ||
+        strpos($url, 'wp.org') !== false) {
+        error_log('Blocked WordPress.org request: ' . $url);
+        return new \WP_Error('http_request_failed', 'WordPress.org API calls disabled to prevent SSL errors.');
+    }
+    return $preempt;
+}, 10, 3);
+
+/**
+ * Disable automatic translation updates
+ */
+add_filter('auto_update_translation', '__return_false');
+
+/**
+ * Disable translation API calls
+ */
+add_filter('translations_api', function() {
+    return new \WP_Error('translations_disabled', 'Translation API disabled to prevent SSL errors.');
+});
+
 
 /**
  * Add "… Continued" to the excerpt.
