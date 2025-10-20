@@ -35,7 +35,7 @@ class PageFields extends Field
             'ajax' => 0,
             'return_format' => 'value',
         ])
-        ->addTrueFalse('hide`navigation', [
+        ->addTrueFalse('hide_navigation', [
             'label' => 'Hida website navigation?',
             'instructions' => 'Toogle this to hide the website navigation from this page',
             'required' => 0,
