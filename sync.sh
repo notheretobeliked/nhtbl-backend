@@ -38,7 +38,10 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   # wp "@$TO" db import ./temp_export_import.sql --path=web/wp &&
   cat ./temp_export_import.sql | wp "@$TO" db import - --path=web/wp && ## from dev
     echo "Modifying $TO db" &&
-  wp "@$TO" search-replace $FROMSITE $TOSITE --all-tables --precise --recurse-objects --skip-columns=guid --path=web/wp
+  wp "@$TO" search-replace $FROMSITE $TOSITE --all-tables --precise --recurse-objects --skip-columns=guid --path=web/wp &&
+  echo "Disabling automatic updates to prevent SSL errors" &&
+  wp "@$TO" config set AUTOMATIC_UPDATER_DISABLED true --type=constant --path=web/wp &&
+  wp "@$TO" config set WP_AUTO_UPDATE_CORE false --type=constant --path=web/wp
 fi
 if [[ "$uploads" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   rsync -az --progress "$FROMDIR" "$TODIR"
