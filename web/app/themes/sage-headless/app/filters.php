@@ -60,155 +60,10 @@ add_filter('acf/save_post', function ($post_id) {
 });
 
 /**
- * Auto-generate question keys and option values using ACF save_post hook
- * This processes all survey blocks in a post after saving
+ * Note: Key generation is handled by JavaScript in the admin UI (see below).
+ * Keys are generated once when the user types and should never be auto-updated.
+ * This ensures user control and prevents unexpected changes.
  */
-add_action('acf/save_post', function ($post_id) {
-    // Only process if we have ACF functions available
-    if (!function_exists('get_field') || !function_exists('update_field')) {
-        return;
-    }
-    
-    // Get all field groups for this post
-    $field_groups = acf_get_field_groups(['post_id' => $post_id]);
-    
-    // Initialize global question counter for this save operation
-    $global_question_counter = 0;
-    
-    foreach ($field_groups as $field_group) {
-        $fields = acf_get_fields($field_group);
-        $global_question_counter = process_fields_for_keys($fields, $post_id, '', $global_question_counter);
-    }
-}, 20);
-
-/**
- * Recursively process fields to find and update survey block fields
- */
-function process_fields_for_keys($fields, $post_id, $parent_key = '', $global_question_counter = 0) {
-    if (!$fields) return $global_question_counter;
-    
-    foreach ($fields as $field) {
-        $field_key = $parent_key ? $parent_key . '_' . $field['name'] : $field['name'];
-        
-        // Check if this is a survey block repeater
-        if ($field['type'] === 'repeater' && $field['name'] === 'questions') {
-            $global_question_counter = process_questions_repeater($field_key, $post_id, $global_question_counter);
-        }
-        
-        // Recursively process sub-fields
-        if (!empty($field['sub_fields'])) {
-            $global_question_counter = process_fields_for_keys($field['sub_fields'], $post_id, $field_key, $global_question_counter);
-        }
-    }
-    
-    return $global_question_counter;
-}
-
-/**
- * Process questions repeater to generate keys with global numbering
- */
-function process_questions_repeater($field_key, $post_id, $global_question_counter) {
-    $questions = get_field($field_key, $post_id);
-    
-    if (!$questions || !is_array($questions)) {
-        return $global_question_counter;
-    }
-    
-    $updated = false;
-    
-    foreach ($questions as $question_index => $question) {
-        // Generate question key if missing
-        if (!empty($question['question_text']) && empty($question['question_key'])) {
-            $global_question_counter++;
-            $prefix = 'q' . $global_question_counter;
-            $questions[$question_index]['question_key'] = generate_unique_key($question['question_text'], $prefix);
-            $updated = true;
-        } else if (!empty($question['question_key'])) {
-            // If question already has a key, still increment counter to maintain sequence
-            $global_question_counter++;
-        }
-        
-        // Process options if they exist
-        if (!empty($question['options']) && is_array($question['options'])) {
-            foreach ($question['options'] as $option_index => $option) {
-                if (!empty($option['option_label']) && empty($option['option_value'])) {
-                    $questions[$question_index]['options'][$option_index]['option_value'] = generate_unique_key($option['option_label'], '', 30);
-                    $updated = true;
-                }
-            }
-        }
-    }
-    
-    // Update the field if any changes were made
-    if ($updated) {
-        update_field($field_key, $questions, $post_id);
-    }
-    
-    return $global_question_counter;
-}
-
-/**
- * Real-time key generation using ACF field update hooks
- * This approach works better with ACF blocks
- */
-add_filter('acf/update_value', function ($value, $post_id, $field) {
-    // Check if this is a survey block field (more flexible check)
-    $is_survey_field = (
-        strpos($field['key'], 'field_survey_block') !== false ||
-        strpos($field['name'], 'survey_block') !== false ||
-        (isset($field['parent']) && strpos($field['parent'], 'survey_block') !== false)
-    );
-    
-    if (!$is_survey_field) {
-        return $value;
-    }
-    
-    // Handle question_text fields
-    if (strpos($field['name'], 'question_text') !== false && !empty($value)) {
-        // Get the field name pattern to find corresponding question_key field
-        $field_name = $field['name'];
-        $question_key_field = str_replace('question_text', 'question_key', $field_name);
-        
-        // Extract question number from field name for prefix
-        preg_match('/questions_(\d+)_/', $field_name, $matches);
-        $question_num = isset($matches[1]) ? (int)$matches[1] + 1 : '';
-        $prefix = $question_num ? 'q' . $question_num : '';
-        
-        // Generate and update the question key
-        $generated_key = generate_unique_key($value, $prefix);
-        
-        // Try immediate update first
-        update_field($question_key_field, $generated_key, $post_id);
-        
-        // Also use delayed update as backup
-        add_action('acf/save_post', function($post_id_inner) use ($question_key_field, $generated_key, $post_id) {
-            if ($post_id_inner === $post_id) {
-                update_field($question_key_field, $generated_key, $post_id);
-            }
-        }, 25);
-    }
-    
-    // Handle option_label fields
-    if (strpos($field['name'], 'option_label') !== false && !empty($value)) {
-        $field_name = $field['name'];
-        $option_value_field = str_replace('option_label', 'option_value', $field_name);
-        
-        // Generate option value
-        $generated_value = generate_unique_key($value, '', 30);
-        
-        // Try immediate update first
-        update_field($option_value_field, $generated_value, $post_id);
-        
-        // Also use delayed update as backup
-        add_action('acf/save_post', function($post_id_inner) use ($option_value_field, $generated_value, $post_id) {
-            if ($post_id_inner === $post_id) {
-                update_field($option_value_field, $generated_value, $post_id);
-            }
-        }, 25);
-    }
-    
-    return $value;
-}, 10, 3);
 
 /**
  * JavaScript-based approach for immediate feedback in the admin
@@ -221,15 +76,10 @@ add_action('acf/input/admin_footer', function() {
         
         
         // Function to generate key from text
-        function generateKey(text, prefix = '', maxLength = 40) {
+        function generateKey(text, maxLength = 40) {
             let key = text.toLowerCase();
             key = key.replace(/[^a-z0-9\s]/g, '');
             key = key.replace(/\s+/g, '_').trim();
-            
-            if (prefix) {
-                key = prefix + '_' + key;
-                maxLength = maxLength - prefix.length - 1;
-            }
             
             key = key.substring(0, maxLength);
             key = key.replace(/_+$/, '');
@@ -254,36 +104,8 @@ add_action('acf/input/admin_footer', function() {
             };
         }
         
-        // Function to calculate global question number across all survey blocks
-        function calculateGlobalQuestionNumber($field) {
-            let globalQuestionNumber = 0;
-            let foundCurrentField = false;
-            
-            // Find the current field's question row first
-            const $currentQuestionRow = $field.closest('.acf-row');
-            
-            // Find all question rows across all repeaters on the page
-            const $allQuestionRows = $('.acf-field-repeater').find('.acf-row:not(.acf-clone)').filter(function() {
-                // Only count rows that have question_text fields (are question rows)
-                return $(this).find('[data-name*="question_text"], [name*="question_text"]').length > 0;
-            });
-            
-            // Count through all question rows until we find the current one
-            $allQuestionRows.each(function(index) {
-                globalQuestionNumber++;
-                
-                // Check if this is the current field's row
-                if ($(this).is($currentQuestionRow)) {
-                    foundCurrentField = true;
-                    return false; // Break the loop
-                }
-            });
-            
-            return globalQuestionNumber || 1; // Default to 1 if calculation fails
-        }
-        
         // Function to generate key for a field
-        function generateKeyForField($field, value, prefix = '', maxLength = 40, userTriggered = false) {
+        function generateKeyForField($field, value, maxLength = 40, userTriggered = false) {
             if (!value || value.length < 2) return; // Don't generate for very short values
             
             // Find the corresponding key field
@@ -292,10 +114,6 @@ add_action('acf/input/admin_footer', function() {
                 $keyField = $field.closest('.acf-row').find('input[data-name="question_key"]');
                 if (!$keyField.length) {
                     $keyField = $field.closest('.acf-row').find('input[name*="question_key"]');
-                }
-                if (!prefix) {
-                    const globalQuestionNumber = calculateGlobalQuestionNumber($field);
-                    prefix = 'q' + globalQuestionNumber;
                 }
             } else if ($field.is('[data-name="option_label"], [name*="option_label"]')) {
                 $keyField = $field.closest('.acf-row').find('input[data-name="option_value"]');
@@ -309,15 +127,15 @@ add_action('acf/input/admin_footer', function() {
                 const currentValue = $keyField.val().trim();
                 // Only generate if field is completely empty AND this is user-triggered
                 if (!currentValue && userTriggered) {
-                    const key = generateKey(value, prefix, maxLength);
+                    const key = generateKey(value, maxLength);
                     $keyField.val(key);
                 }
             }
         }
         
         // Debounced version for input events
-        const debouncedGenerateKey = debounce(function($field, value, prefix, maxLength, userTriggered) {
-            generateKeyForField($field, value, prefix, maxLength, userTriggered);
+        const debouncedGenerateKey = debounce(function($field, value, maxLength, userTriggered) {
+            generateKeyForField($field, value, maxLength, userTriggered);
         }, 500);
         
         // Function to populate Likert scale options
@@ -387,7 +205,7 @@ add_action('acf/input/admin_footer', function() {
                 $optionLabel.val(optionText);
                 
                 // Generate and set the option value key
-                const optionKey = generateKey(optionText, '', 30);
+                const optionKey = generateKey(optionText, 30);
                 let $optionValue = $row.find('input[data-name="option_value"]');
                 if (!$optionValue.length) {
                     $optionValue = $row.find('input[name*="option_value"]');
@@ -413,7 +231,7 @@ add_action('acf/input/admin_footer', function() {
                 const $this = $(this);
                 const value = $this.val().trim();
                 
-                generateKeyForField($this, value, '', 40, true); // userTriggered = true
+                generateKeyForField($this, value, 40, true); // userTriggered = true
             });
             
             // Secondary trigger: debounced input for immediate feedback when pasting
@@ -423,7 +241,7 @@ add_action('acf/input/admin_footer', function() {
                 
                 // Only trigger debounced generation if the value looks like it was pasted (longer than 10 chars)
                 if (value.length > 10) {
-                    debouncedGenerateKey($this, value, '', 40, true); // userTriggered = true
+                    debouncedGenerateKey($this, value, 40, true); // userTriggered = true
                 }
             });
             
@@ -483,36 +301,3 @@ add_action('acf/input/admin_footer', function() {
     </script>
     <?php
 });
-
-/**
- * Generate unique key from text
- */
-function generate_unique_key($text, $prefix = '', $max_length = 40) {
-    // Convert to lowercase
-    $key = strtolower($text);
-    
-    // Remove special characters, keep alphanumeric and spaces
-    $key = preg_replace('/[^a-z0-9\s]/', '', $key);
-    
-    // Replace spaces with underscores for better compatibility
-    $key = preg_replace('/\s+/', '_', trim($key));
-    
-    // Add prefix if provided
-    if ($prefix) {
-        $key = $prefix . '_' . $key;
-        // Adjust max length to account for prefix
-        $max_length = $max_length - strlen($prefix) - 1;
-    }
-    
-    // Limit length
-    $key = substr($key, 0, $max_length);
-    
-    // Remove trailing underscores
-    $key = rtrim($key, '_');
-    
-    // Add a hash suffix for uniqueness (more deterministic than random)
-    $hash = substr(md5($text . time()), 0, 4);
-    $key = $key . '_' . $hash;
-    
-    return $key;
-}

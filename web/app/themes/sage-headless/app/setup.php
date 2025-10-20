@@ -291,14 +291,11 @@ add_action('widgets_init', function () {
  */
 add_action('graphql_register_types', function () {
     // Helper function to generate keys
-    $generate_survey_key = function ($text, $prefix = '', $max_length = 50) {
+    $generate_survey_key = function ($text, $max_length = 50) {
         $key = strtolower($text);
         $key = preg_replace('/[^a-z0-9\s]/', '', $key);
         $key = preg_replace('/\s+/', '_', trim($key));
         $key = substr($key, 0, $max_length);
-        if ($prefix) {
-            $key = $prefix . '_' . $key;
-        }
         $key = rtrim($key, '_');
         return $key;
     };
@@ -315,25 +312,11 @@ add_action('graphql_register_types', function () {
                 return $question_key;
             }
             
-            // If no saved key, generate from question text
+            // If no saved key, generate from question text (no automatic numbering)
             $question_text = $source['questionText'] ?? $source['question_text'] ?? null;
 
             if (!empty($question_text)) {
-                // Extract question number from the path
-                $path = $info->path ?? [];
-                $question_index = null;
-
-                // Find the numeric index in the path
-                foreach ($path as $segment) {
-                    if (is_numeric($segment)) {
-                        $question_index = (int)$segment + 1; // +1 for human-readable numbering
-                        break;
-                    }
-                }
-
-                // Fallback: generate without prefix if we can't find the index
-                $prefix = $question_index ? 'q' . $question_index : '';
-                return $generate_survey_key($question_text, $prefix);
+                return $generate_survey_key($question_text);
             }
             return null;
         }
