@@ -138,8 +138,8 @@ class SurveyBlock extends Block
                     'label' => 'Question Type',
                     'required' => 1,
                     'choices' => [
-                        'multiple_choice' => 'Multiple Choice',
                         'likert_scale' => 'Likert Scale',
+                        'multiple_choice' => 'Multiple Choice',
                         'checkbox' => 'Checkbox (Multiple Select)',
                         'text' => 'Text (Short Answer)',
                         'textarea' => 'Textarea (Long Answer)',
@@ -206,7 +206,7 @@ class SurveyBlock extends Block
                     'instructions' => 'Custom options for your question',
                     'button_label' => 'Add Option',
                     'layout' => 'table',
-                    'min' => 1,
+                    'min' => 0,
                     'conditional_logic' => [
                         [
                             [
@@ -238,7 +238,6 @@ class SurveyBlock extends Block
                 ])
                     ->addText('option_label', [
                         'label' => 'Option Label',
-                        'required' => 1,
                     ])
                     ->addText('option_value', [
                         'label' => 'Option Value',

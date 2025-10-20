@@ -138,93 +138,13 @@ add_action('acf/input/admin_footer', function() {
             generateKeyForField($field, value, maxLength, userTriggered);
         }, 500);
         
-        // Function to populate Likert scale options
-        function populateLikertOptions($questionRow) {
-            const likertOptions = [
-                'Strongly disagree',
-                'Disagree', 
-                'Neither agree nor disagree',
-                'Agree',
-                'Strongly agree'
-            ];
-            
-            // Find the options repeater
-            let $optionsRepeater = $questionRow.find('[data-name="options"]');
-            if (!$optionsRepeater.length) {
-                $optionsRepeater = $questionRow.find('.acf-field-repeater').filter(function() {
-                    return $(this).find('[data-name*="option"]').length > 0;
-                });
-            }
-            
-            if (!$optionsRepeater.length) {
-                return;
-            }
-            
-            // Check if already populated to avoid duplicate work
-            const $existingRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
-            if ($existingRows.length === likertOptions.length) {
-                // Check if first row has the expected value
-                const firstRowValue = $existingRows.first().find('input[data-name="option_label"], input[name*="option_label"]').val();
-                if (firstRowValue === likertOptions[0]) {
-                    return; // Already populated correctly
-                }
-            }
-            
-            // Clear existing options
-            $existingRows.remove();
-            
-            // Use button clicking approach - back to staggered for ACF validation
-            const $addButton = $optionsRepeater.find('.acf-button[data-event="add-row"]');
-            if ($addButton.length) {
-                likertOptions.forEach(function(optionText, index) {
-                    // Click the add button
-                    $addButton.trigger('click');
-                    
-                    // Wait for the row to be created, then populate it
-                    setTimeout(function() {
-                        const $newRows = $optionsRepeater.find('.acf-row:not(.acf-clone)');
-                        const $targetRow = $newRows.eq(index);
-                        
-                        if ($targetRow.length) {
-                            populateOptionRow($targetRow, optionText);
-                        }
-                    }, 150 * (index + 1)); // Reduced but still staggered for ACF
-                });
-            }
-        }
-        
-        // Helper function to populate an option row
-        function populateOptionRow($row, optionText) {
-            // Find and populate the option label
-            let $optionLabel = $row.find('input[data-name="option_label"]');
-            if (!$optionLabel.length) {
-                $optionLabel = $row.find('input[name*="option_label"]');
-            }
-            
-            if ($optionLabel.length) {
-                $optionLabel.val(optionText);
-                
-                // Generate and set the option value key
-                const optionKey = generateKey(optionText, 30);
-                let $optionValue = $row.find('input[data-name="option_value"]');
-                if (!$optionValue.length) {
-                    $optionValue = $row.find('input[name*="option_value"]');
-                }
-                
-                if ($optionValue.length) {
-                    $optionValue.val(optionKey);
-                }
-            }
-        }
-        
-        // More robust event handling
+        // Event handling for key generation
         function attachHandlers() {
             const questionSelectors = 'input[data-name="question_text"], textarea[data-name="question_text"], input[name*="question_text"], textarea[name*="question_text"]';
             const optionSelectors = 'input[data-name="option_label"], input[name*="option_label"]';
-            const questionTypeSelectors = 'select[data-name="question_type"], select[name*="question_type"]';
             
             // Remove existing handlers
-            $(document).off('blur.survey-auto-key focusout.survey-auto-key input.survey-auto-key-debounced change.survey-likert');
+            $(document).off('blur.survey-auto-key focusout.survey-auto-key input.survey-auto-key-debounced');
             
             // Primary trigger: on blur/focusout (when user leaves the field)
             $(document).on('blur.survey-auto-key focusout.survey-auto-key', questionSelectors + ', ' + optionSelectors, function() {
@@ -244,37 +164,6 @@ add_action('acf/input/admin_footer', function() {
                     debouncedGenerateKey($this, value, 40, true); // userTriggered = true
                 }
             });
-            
-            // Throttled Likert population to prevent excessive calls
-            const throttledPopulateLikert = debounce(function($questionRow) {
-                populateLikertOptions($questionRow);
-            }, 300);
-            
-            // Handle question type changes for Likert scale
-            $(document).on('change.survey-likert', questionTypeSelectors, function() {
-                const $this = $(this);
-                const selectedValue = $this.val();
-                
-                if (selectedValue === 'likert_scale') {
-                    const $questionRow = $this.closest('.acf-row');
-                    if ($questionRow.length) {
-                        throttledPopulateLikert($questionRow);
-                    }
-                }
-            });
-            
-            // Also try to catch changes with a more general selector (throttled)
-            $(document).on('change', 'select', function() {
-                const $this = $(this);
-                const name = $this.attr('name') || $this.attr('data-name') || '';
-                
-                if (name.includes('question_type') && $this.val() === 'likert_scale') {
-                    const $questionRow = $this.closest('.acf-row');
-                    if ($questionRow.length) {
-                        throttledPopulateLikert($questionRow);
-                    }
-                }
-            });
         }
         
         // Initial attachment
@@ -282,20 +171,13 @@ add_action('acf/input/admin_footer', function() {
         
         // Re-attach when ACF adds new rows
         if (typeof acf !== 'undefined' && acf.addAction) {
-            acf.addAction('ready_field', function(field) {
-                if (field.get('type') === 'repeater') {
+            acf.addAction('append_field', function(field) {
+                // Only re-attach if it's a survey-related field
+                if (field.get('name') === 'questions' || field.get('name') === 'options') {
                     attachHandlers();
                 }
             });
-            
-            acf.addAction('append_field', function(field) {
-                attachHandlers();
-            });
         }
-        
-        // Fallback: re-attach periodically
-        // Reduced frequency fallback re-attachment for better performance
-        setInterval(attachHandlers, 5000);
         
     })(jQuery);
     </script>
