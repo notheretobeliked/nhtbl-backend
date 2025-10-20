@@ -18,7 +18,8 @@ class PageFields extends Field
 
         $pageFields->setLocation('post_type', '==', 'page');
 
-        $pageFields->addSelect('background_colour', [
+        $pageFields
+        ->addSelect('background_colour', [
             'label' => 'Page background colour',
             'required' => 0,
             'choices' => [
@@ -29,6 +30,16 @@ class PageFields extends Field
                 'nhtbl-purple-light' => 'Light purple',
             ],
             'default_value' => ['white'],
+            'allow_null' => 0,
+            'ui' => 1,
+            'ajax' => 0,
+            'return_format' => 'value',
+        ])
+        ->addTrueFalse('hide`navigation', [
+            'label' => 'Hida website navigation?',
+            'instructions' => 'Toogle this to hide the website navigation from this page',
+            'required' => 0,
+            'default_value' => 0,
             'allow_null' => 0,
             'ui' => 1,
             'ajax' => 0,
