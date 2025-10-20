@@ -306,9 +306,16 @@ add_action('graphql_register_types', function () {
     // Register questionKey field on SurveyQuestions
     register_graphql_field('SurveyQuestions', 'questionKey', [
         'type' => 'String',
-        'description' => 'Auto-generated key from question text',
+        'description' => 'Question key (uses saved value or auto-generates from question text)',
         'resolve' => function ($source, $args, $context, $info) use ($generate_survey_key) {
-            // Try both camelCase and snake_case
+            // First, check if question_key already exists (prioritize saved values)
+            $question_key = $source['questionKey'] ?? $source['question_key'] ?? null;
+            
+            if (!empty($question_key)) {
+                return $question_key;
+            }
+            
+            // If no saved key, generate from question text
             $question_text = $source['questionText'] ?? $source['question_text'] ?? null;
 
             if (!empty($question_text)) {
@@ -335,9 +342,16 @@ add_action('graphql_register_types', function () {
     // Register optionValue field on SurveyQuestionsOptions
     register_graphql_field('SurveyQuestionsOptions', 'optionValue', [
         'type' => 'String',
-        'description' => 'Auto-generated value from option label',
+        'description' => 'Option value/key (uses saved value or auto-generates from option label)',
         'resolve' => function ($source, $args, $context, $info) use ($generate_survey_key) {
-            // Try both camelCase and snake_case
+            // First, check if option_value already exists (e.g., from default Likert options)
+            $option_value = $source['optionValue'] ?? $source['option_value'] ?? null;
+            
+            if (!empty($option_value)) {
+                return $option_value;
+            }
+            
+            // If no saved value, generate from option label
             $option_label = $source['optionLabel'] ?? $source['option_label'] ?? null;
 
             if (!empty($option_label)) {

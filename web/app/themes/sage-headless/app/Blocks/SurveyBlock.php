@@ -68,8 +68,41 @@ class SurveyBlock extends Block
      */
     public function with()
     {
+        $questions = get_field('questions') ?: [];
+        
+        // Add default Likert scale options when needed
+        foreach ($questions as &$question) {
+            if ($question['question_type'] === 'likert_scale' && 
+                isset($question['use_default_likert_options']) && 
+                $question['use_default_likert_options']) {
+                
+                $question['options'] = [
+                    [
+                        'option_label' => 'Strongly Disagree',
+                        'option_value' => 'strongly-disagree',
+                    ],
+                    [
+                        'option_label' => 'Disagree',
+                        'option_value' => 'disagree',
+                    ],
+                    [
+                        'option_label' => 'Neutral',
+                        'option_value' => 'neutral',
+                    ],
+                    [
+                        'option_label' => 'Agree',
+                        'option_value' => 'agree',
+                    ],
+                    [
+                        'option_label' => 'Strongly Agree',
+                        'option_value' => 'strongly-agree',
+                    ],
+                ];
+            }
+        }
+        
         return [
-            'questions' => get_field('questions') ?: [],
+            'questions' => $questions,
         ];
     }
 
@@ -150,9 +183,27 @@ class SurveyBlock extends Block
                         'width' => '25',
                     ],
                 ])
+                ->addTrueFalse('use_default_likert_options', [
+                    'label' => 'Use Default Likert Options',
+                    'instructions' => 'Use standard Likert scale options (Strongly Disagree to Strongly Agree)',
+                    'default_value' => 1,
+                    'ui' => 1,
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field' => 'question_type',
+                                'operator' => '==',
+                                'value' => 'likert_scale',
+                            ],
+                        ],
+                    ],
+                    'wrapper' => [
+                        'width' => '25',
+                    ],
+                ])
                 ->addRepeater('options', [
                     'label' => 'Answer Options',
-                    'instructions' => 'Only used for multiple choice, likert scale, and checkbox questions',
+                    'instructions' => 'Custom options for your question',
                     'button_label' => 'Add Option',
                     'layout' => 'table',
                     'min' => 1,
@@ -168,14 +219,19 @@ class SurveyBlock extends Block
                             [
                                 'field' => 'question_type',
                                 'operator' => '==',
-                                'value' => 'likert_scale',
+                                'value' => 'checkbox',
                             ],
                         ],
                         [
                             [
                                 'field' => 'question_type',
                                 'operator' => '==',
-                                'value' => 'checkbox',
+                                'value' => 'likert_scale',
+                            ],
+                            [
+                                'field' => 'use_default_likert_options',
+                                'operator' => '!=',
+                                'value' => '1',
                             ],
                         ],
                     ],

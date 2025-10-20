@@ -13,8 +13,6 @@
         if (!document.body || !document.body.classList.contains('block-editor-page')) {
             return;
         }
-        
-        console.log('Survey block auto-generation script loaded');
 
         // Function to convert text to kebab-case
         function toKebabCase(text) {
@@ -42,103 +40,118 @@
             return `${truncated}-${randomId}`;
         }
 
-        // Function to update option values for a question
-        function updateOptionValues(questionRow) {
-            console.log('🏷️ updateOptionValues called with row:', questionRow);
+        // Function to update a single option value (optimized for performance)
+        function updateSingleOptionValue(optionRow) {
+            const optionLabelInput = optionRow.querySelector('input[name*="[option_label]"]');
+            const optionValueInput = optionRow.querySelector('input[name*="[option_value]"]');
             
+            if (optionLabelInput && optionValueInput) {
+                const optionLabel = optionLabelInput.value;
+                const currentValue = optionValueInput.value;
+                
+                // Only generate if:
+                // 1. There's an option label
+                // 2. The value field is truly empty
+                // 3. The row hasn't been marked as processed
+                const isValueEmpty = !currentValue || currentValue.trim() === '';
+                const isProcessed = optionRow.dataset.valueProcessed === 'true';
+                
+                if (optionLabel && isValueEmpty && !isProcessed) {
+                    const generatedValue = generateOptionValue(optionLabel);
+                    optionValueInput.value = generatedValue;
+                    // Mark this row as processed to prevent future regeneration
+                    optionRow.dataset.valueProcessed = 'true';
+                    // Trigger change event to ensure ACF recognizes the change
+                    optionValueInput.dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    // If a value already exists, mark the row as processed
+                    if (!isValueEmpty) {
+                        optionRow.dataset.valueProcessed = 'true';
+                    }
+                }
+            }
+        }
+        
+        // Function to update option values for all options in a question (used on initialization)
+        function updateAllOptionValues(questionRow) {
             // Find all option rows for this question - they're in a separate repeater
             const optionRows = questionRow.querySelectorAll('.acf-field-repeater[data-name="options"] .acf-row:not(.acf-clone)');
-            console.log('🏷️ Found option rows:', optionRows.length);
             
-            optionRows.forEach((optionRow, index) => {
-                console.log(`🏷️ Processing option row ${index}:`, optionRow);
-                const optionLabelInput = optionRow.querySelector('input[name*="[option_label]"]');
-                const optionValueInput = optionRow.querySelector('input[name*="[option_value]"]');
-                
-                console.log('🏷️ Option label input:', optionLabelInput);
-                console.log('🏷️ Option value input:', optionValueInput);
-                
-                if (optionLabelInput && optionValueInput) {
-                    const optionLabel = optionLabelInput.value;
-                    console.log('🏷️ Option label value:', optionLabel);
-                    console.log('🏷️ Current option value:', optionValueInput.value);
-                    
-                    if (optionLabel && !optionValueInput.value) {
-                        const generatedValue = generateOptionValue(optionLabel);
-                        console.log('🏷️ Generated option value:', generatedValue);
-                        optionValueInput.value = generatedValue;
-                        // Trigger change event to ensure ACF recognizes the change
-                        optionValueInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        console.log('✅ Option value updated successfully');
-                    } else {
-                        console.log('⚠️ Skipping option - no label or value already exists');
-                    }
-                } else {
-                    console.log('❌ Missing option inputs');
-                }
+            optionRows.forEach((optionRow) => {
+                updateSingleOptionValue(optionRow);
             });
         }
 
         // Function to update question key for a question
         function updateQuestionKey(questionRow) {
-            console.log('🔑 updateQuestionKey called with row:', questionRow);
             const questionTextInput = questionRow.querySelector('textarea[name*="[question_text]"], input[name*="[question_text]"]');
             const questionKeyInput = questionRow.querySelector('input[name*="[question_key]"]');
             
-            console.log('📝 Question text input:', questionTextInput);
-            console.log('🔑 Question key input:', questionKeyInput);
-            
             if (questionTextInput && questionKeyInput) {
                 const questionText = questionTextInput.value;
-                console.log('📝 Question text value:', questionText);
-                console.log('🔑 Current key value:', questionKeyInput.value);
+                const currentKeyValue = questionKeyInput.value;
                 
-                if (questionText && !questionKeyInput.value) {
+                // Only generate if: 
+                // 1. There's question text
+                // 2. The key field is truly empty (not just whitespace)
+                // 3. The row hasn't been marked as processed (to prevent re-generation on page load)
+                const isKeyEmpty = !currentKeyValue || currentKeyValue.trim() === '';
+                const isProcessed = questionRow.dataset.keyProcessed === 'true';
+                
+                if (questionText && isKeyEmpty && !isProcessed) {
                     const generatedKey = generateOptionValue(questionText);
-                    console.log('🔑 Generated key:', generatedKey);
                     questionKeyInput.value = generatedKey;
+                    // Mark this row as processed to prevent future regeneration
+                    questionRow.dataset.keyProcessed = 'true';
                     // Trigger change event to ensure ACF recognizes the change
                     questionKeyInput.dispatchEvent(new Event('change', { bubbles: true }));
-                    console.log('✅ Question key updated successfully');
                 } else {
-                    console.log('⚠️ Skipping - no text or key already exists');
+                    // If a key already exists, mark the row as processed
+                    if (!isKeyEmpty) {
+                        questionRow.dataset.keyProcessed = 'true';
+                    }
                 }
-            } else {
-                console.log('❌ Missing required inputs');
             }
         }
 
         // Function to handle blur events
         function handleBlur(event) {
-            console.log('🔍 Blur event triggered', event);
             const input = event.target;
-            console.log('📝 Input element:', input);
-            console.log('📝 Input name:', input ? input.name : 'no name');
             
             // Ensure we have a valid DOM element
             if (!input || typeof input.closest !== 'function') {
-                console.log('❌ Invalid input element or no closest method');
                 return;
             }
             
             const questionRow = input.closest('.acf-row[data-name="questions"]');
-            console.log('📋 Question row found:', questionRow);
+            const optionRow = input.closest('.acf-field-repeater[data-name="options"] .acf-row:not(.acf-clone)');
             
-            if (!questionRow) {
-                console.log('❌ No question row found');
+            // If user manually edits the question_key field, mark the row as processed
+            if (input.name && input.name.includes('question_key') && questionRow) {
+                if (input.value && input.value.trim() !== '') {
+                    questionRow.dataset.keyProcessed = 'true';
+                }
                 return;
             }
-
-            // Update question key if this is a question text input
-            if (input.name && input.name.includes('question_text')) {
-                console.log('🔑 Updating question key for:', input.value);
-                updateQuestionKey(questionRow);
+            
+            // If user manually edits the option_value field, mark the row as processed
+            if (input.name && input.name.includes('option_value') && optionRow) {
+                if (input.value && input.value.trim() !== '') {
+                    optionRow.dataset.valueProcessed = 'true';
+                }
+                return;
             }
             
-            // Update option values if this is an option label input
-            if (input.name && input.name.includes('option_label')) {
-                console.log('🏷️ Updating option values for:', input.value);
-                updateOptionValues(questionRow);
+            // Update question key if this is a question text input
+            if (input.name && input.name.includes('question_text') && questionRow) {
+                updateQuestionKey(questionRow);
+                return;
+            }
+            
+            // Update ONLY this specific option value if this is an option label input
+            if (input.name && input.name.includes('option_label') && optionRow) {
+                updateSingleOptionValue(optionRow);
+                return;
             }
         }
 
@@ -148,8 +161,6 @@
                 mutations.forEach(function(mutation) {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1) { // Element node
-                            console.log('🔄 New node added:', node.className, node);
-                            
                             // Check if it's a survey block or contains one
                             let surveyBlocks = [];
                             
@@ -165,7 +176,6 @@
                             
                             possibleSelectors.forEach(selector => {
                                 if (node.matches && node.matches(selector)) {
-                                    console.log(`📋 Node matches survey selector: ${selector}`);
                                     surveyBlocks.push(node);
                                 }
                             });
@@ -175,7 +185,6 @@
                                 possibleSelectors.forEach(selector => {
                                     const blocks = node.querySelectorAll(selector);
                                     if (blocks.length > 0) {
-                                        console.log(`📋 Node contains survey blocks with selector "${selector}":`, blocks.length);
                                         surveyBlocks = [...surveyBlocks, ...blocks];
                                     }
                                 });
@@ -183,7 +192,6 @@
                             
                             surveyBlocks.forEach(function(block) {
                                 if (block && typeof block.querySelectorAll === 'function') {
-                                    console.log('📋 Attaching listeners to new survey block:', block);
                                     attachEventListeners(block);
                                 }
                             });
@@ -202,83 +210,85 @@
 
         // Function to attach event listeners to survey blocks
         function attachEventListeners(block) {
-            console.log('🔗 Attaching event listeners to block:', block);
-            
             // Try to attach listeners immediately
             attachListenersToBlock(block);
             
-            // Also try again after a short delay in case fields are still loading
+            // Single retry after a short delay for fields that load dynamically
             setTimeout(() => {
-                console.log('🔄 Retrying to attach listeners after delay...');
                 attachListenersToBlock(block);
-            }, 500);
-            
-            // And once more after a longer delay
-            setTimeout(() => {
-                console.log('🔄 Final retry to attach listeners...');
-                attachListenersToBlock(block);
-            }, 1500);
+            }, 100);
         }
         
         // Helper function to actually attach the listeners
         function attachListenersToBlock(block) {
-            // Use a more comprehensive selector to find all possible input fields
-            const inputSelectors = [
-                'input[type="text"]',
-                'textarea',
-                'input[type="email"]',
-                'input[type="url"]',
-                'input[type="tel"]',
-                'input[type="search"]',
-                'input[type="number"]',
-                'input[type="password"]',
-                'input:not([type])', // inputs without type attribute (defaults to text)
-                'input[type=""]' // inputs with empty type attribute
-            ];
-            
-            let inputs = [];
-            inputSelectors.forEach(selector => {
-                const found = block.querySelectorAll(selector);
-                if (found.length > 0) {
-                    console.log(`📝 Found ${found.length} inputs with selector: ${selector}`);
-                    inputs = [...inputs, ...found];
-                }
-            });
-            
-            // Remove duplicates
-            inputs = [...new Set(inputs)];
-            console.log('📝 Total unique inputs found:', inputs.length);
-            
-            inputs.forEach((input, index) => {
-                console.log(`📝 Processing input ${index}:`, input);
-                console.log(`📝 Input name:`, input.name);
-                console.log(`📝 Input type:`, input.type);
-                console.log(`📝 Input value:`, input.value);
+            // Use requestIdleCallback or setTimeout to avoid blocking ACF's initialization
+            const processBlock = () => {
+                // First, mark all existing rows with values as processed
+                // This prevents regeneration of existing saved data
+                const questionRows = block.querySelectorAll('.acf-row[data-name="questions"]:not(.acf-clone)');
+                questionRows.forEach(questionRow => {
+                    const questionKeyInput = questionRow.querySelector('input[name*="[question_key]"]');
+                    if (questionKeyInput && questionKeyInput.value && questionKeyInput.value.trim() !== '') {
+                        questionRow.dataset.keyProcessed = 'true';
+                    }
+                });
                 
-                // Ensure it's a valid DOM element
-                if (input && typeof input.addEventListener === 'function') {
-                    // Remove existing listeners to prevent duplicates
-                    input.removeEventListener('blur', handleBlur);
-                    // Add blur event listener
-                    input.addEventListener('blur', handleBlur);
-                    console.log(`✅ Event listener attached to input: ${input.name}`);
-                } else {
-                    console.log(`❌ Invalid input element:`, input);
-                }
-            });
+                // Mark all existing option rows with values as processed
+                const optionRows = block.querySelectorAll('.acf-field-repeater[data-name="options"] .acf-row:not(.acf-clone)');
+                optionRows.forEach(optionRow => {
+                    const optionValueInput = optionRow.querySelector('input[name*="[option_value]"]');
+                    if (optionValueInput && optionValueInput.value && optionValueInput.value.trim() !== '') {
+                        optionRow.dataset.valueProcessed = 'true';
+                    }
+                });
+                
+                // Use a more comprehensive selector to find all possible input fields
+                const inputSelectors = [
+                    'input[type="text"]',
+                    'textarea',
+                    'input[type="email"]',
+                    'input[type="url"]',
+                    'input[type="tel"]',
+                    'input[type="search"]',
+                    'input[type="number"]',
+                    'input[type="password"]',
+                    'input:not([type])', // inputs without type attribute (defaults to text)
+                    'input[type=""]' // inputs with empty type attribute
+                ];
+                
+                let inputs = [];
+                inputSelectors.forEach(selector => {
+                    const found = block.querySelectorAll(selector);
+                    if (found.length > 0) {
+                        inputs = [...inputs, ...found];
+                    }
+                });
+                
+                // Remove duplicates
+                inputs = [...new Set(inputs)];
+                
+                inputs.forEach((input) => {
+                    // Ensure it's a valid DOM element
+                    if (input && typeof input.addEventListener === 'function') {
+                        // Check if listener is already attached
+                        if (!input.dataset.surveyListenerAttached) {
+                            input.addEventListener('blur', handleBlur);
+                            input.dataset.surveyListenerAttached = 'true';
+                        }
+                    }
+                });
+            };
+            
+            // Use requestIdleCallback if available, otherwise use setTimeout
+            if (window.requestIdleCallback) {
+                requestIdleCallback(processBlock, { timeout: 100 });
+            } else {
+                setTimeout(processBlock, 0);
+            }
         }
 
         // Initialize existing survey blocks
         function initExistingBlocks() {
-            console.log('🔍 Looking for existing survey blocks...');
-            
-            // Let's check what blocks are actually available
-            const allBlocks = document.querySelectorAll('[class*="acf-block"]');
-            console.log('📋 All ACF blocks found:', allBlocks.length);
-            allBlocks.forEach((block, index) => {
-                console.log(`📋 Block ${index}:`, block.className, block);
-            });
-            
             // Try different possible class names
             const possibleSelectors = [
                 '.wp-block-acf-survey-block',
@@ -293,39 +303,41 @@
             possibleSelectors.forEach(selector => {
                 const blocks = document.querySelectorAll(selector);
                 if (blocks.length > 0) {
-                    console.log(`📋 Found blocks with selector "${selector}":`, blocks.length);
                     surveyBlocks = [...surveyBlocks, ...blocks];
                 }
             });
             
-            console.log('📋 Total survey blocks found:', surveyBlocks.length);
-            surveyBlocks.forEach((block, index) => {
-                console.log(`📋 Processing existing block ${index}:`, block);
+            surveyBlocks.forEach((block) => {
                 attachEventListeners(block);
             });
         }
 
         // Start observing and initialize existing blocks
-        console.log('🚀 Starting survey block initialization...');
         observeSurveyBlocks();
         initExistingBlocks();
-        console.log('✅ Survey block initialization complete');
 
         // Also listen for ACF field updates (in case the block is updated dynamically)
         if (typeof acf !== 'undefined' && acf.addAction) {
-            console.log('🔗 Setting up ACF field listener...');
-            acf.addAction('ready_field', function(field) {
-                console.log('🔄 ACF field ready:', field);
-                const block = field.closest('.acf-block-survey-block');
-                if (block) {
-                    console.log('📋 Found survey block in ACF field, attaching listeners...');
-                    attachEventListeners(block);
-                } else {
-                    console.log('❌ No survey block found for ACF field');
+            // When a repeater row is added, attach listeners
+            acf.addAction('append', function($el) {
+                const block = $el.closest('.acf-block-survey-block');
+                if (block.length > 0) {
+                    // Small delay to let ACF finish rendering the row
+                    setTimeout(() => {
+                        attachListenersToBlock(block[0]);
+                    }, 50);
                 }
             });
-        } else {
-            console.log('⚠️ ACF not available for field listener');
+            
+            // When conditional logic shows/hides fields
+            acf.addAction('show_field', function(field) {
+                const block = field.$el.closest('.acf-block-survey-block');
+                if (block.length > 0) {
+                    setTimeout(() => {
+                        attachListenersToBlock(block[0]);
+                    }, 50);
+                }
+            });
         }
     }
 })();
