@@ -19,6 +19,9 @@ const config = {
         base: '#D59CE5',
         light: '#E4D5E8',
       },  
+      'nhtbl-grey': {
+        base: '#D9D9D9'
+      },
     },
     fontSize: {
       'sm': '.875rem',

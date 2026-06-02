@@ -45,6 +45,11 @@
           "color": "#e4d5e8",
           "name": "Nhtbl-purple Light",
           "slug": "nhtbl-purple-light"
+        },
+        {
+          "color": "#d9d9d9",
+          "name": "Nhtbl-grey Base",
+          "slug": "nhtbl-grey-base"
         }
       ]
     },

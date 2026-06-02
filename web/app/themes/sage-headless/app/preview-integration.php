@@ -8,30 +8,28 @@ namespace App\Preview;
 add_post_type_support('page', 'revisions');
 
 /**
- * Get frontend URLs based on environment
+ * Get frontend URLs. The frontend host is read from the FRONTEND_URL env var
+ * (set per environment in .env); the per-WP_ENV values below are only a
+ * fallback if FRONTEND_URL is missing.
  */
 function get_frontend_urls() {
-    // Get environment from WP_ENV constant (set in Bedrock)
-    $env = defined('WP_ENV') ? WP_ENV : 'production';
-    
-    switch ($env) {
-        case 'development':
-            return [
-                'frontend' => 'http://localhost:5013',
-                'allowed_origins' => ['http://localhost:5013']
-            ];
-        case 'staging':
-            return [
-                'frontend' => 'https://stg.nhtbl.studio', // If you have staging
-                'allowed_origins' => ['https://stg.nhtbl.studio']
-            ];
-        case 'production':
-        default:
-            return [
-                'frontend' => 'https://www.notheretobeliked.studio',
-                'allowed_origins' => ['https://www.notheretobeliked.studio']
-            ];
+    $frontend = env('FRONTEND_URL');
+
+    if (!$frontend) {
+        $env = defined('WP_ENV') ? WP_ENV : 'production';
+        $frontend = match ($env) {
+            'development' => 'http://localhost:5013',
+            'staging'     => 'https://stg.nhtbl.studio',
+            default       => 'https://www.notheretobeliked.studio',
+        };
     }
+
+    $frontend = rtrim($frontend, '/');
+
+    return [
+        'frontend'        => $frontend,
+        'allowed_origins' => [$frontend],
+    ];
 }
 
 /**
@@ -259,6 +257,34 @@ add_action('rest_api_init', function() {
         'permission_callback' => '__return_true'
     ));
 });
+
+/**
+ * Early authentication via determine_current_user. This is the canonical WP
+ * auth hook (which WPGraphQL respects), so a token-authenticated preview request
+ * is recognised as the editing user before WPGraphQL resolves — required for
+ * single-node draft queries (e.g. nhtblProject(id:...)) to return content.
+ */
+add_filter('determine_current_user', function($user_id) {
+    // Don't override an already-authenticated user.
+    if ($user_id) {
+        return $user_id;
+    }
+
+    $token = $_SERVER['HTTP_X_PREVIEW_TOKEN'] ?? ($_GET['token'] ?? null);
+    if (!$token && function_exists('getallheaders')) {
+        $headers = getallheaders();
+        $token = $headers['X-Preview-Token'] ?? $headers['x-preview-token'] ?? null;
+    }
+
+    if ($token) {
+        $token_data = get_transient('preview_token_' . $token);
+        if ($token_data && isset($token_data['user_id'])) {
+            return (int) $token_data['user_id'];
+        }
+    }
+
+    return $user_id;
+}, 20);
 
 /**
  * Add GraphQL authentication hook to validate preview tokens
@@ -540,6 +566,51 @@ add_filter('post_link', function($permalink, $post) {
     }
     return $permalink;
 }, 10, 2);
+
+/**
+ * Modify "View" links for custom post types (e.g. Portfolio) in admin to point
+ * to the frontend.
+ */
+add_filter('post_type_link', function($permalink, $post) {
+    if (is_admin() && !wp_doing_ajax()) {
+        $urls = get_frontend_urls();
+        return str_replace(home_url(), $urls['frontend'], $permalink);
+    }
+    return $permalink;
+}, 10, 2);
+
+/**
+ * Forward all front-of-site backend requests to the frontend. Admin, AJAX,
+ * cron, REST, GraphQL, previews, robots and feeds are left untouched.
+ */
+add_action('template_redirect', function() {
+    if (is_admin() || wp_doing_ajax() || wp_doing_cron() || is_preview()) {
+        return;
+    }
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+
+    $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($request_uri, '/graphql') !== false || strpos($request_uri, '/wp-json/') !== false) {
+        return;
+    }
+    if (is_robots() || is_feed()) {
+        return;
+    }
+
+    $urls = get_frontend_urls();
+    $path = wp_parse_url($request_uri ?: '/', PHP_URL_PATH) ?: '/';
+
+    // Strip the /wp prefix if present (Bedrock structure).
+    $wp_base = wp_parse_url(home_url(), PHP_URL_PATH) ?: '';
+    if ($wp_base && strpos($path, $wp_base) === 0) {
+        $path = substr($path, strlen($wp_base)) ?: '/';
+    }
+
+    wp_redirect($urls['frontend'] . $path, 301);
+    exit;
+});
 
 /**
  * Allow GraphQL to query posts by ID regardless of status for authenticated users

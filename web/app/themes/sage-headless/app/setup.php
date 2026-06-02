@@ -9,18 +9,11 @@ namespace App;
 use function Roots\bundle;
 
 /**
- * Disable automatic translation updates and WordPress.org API calls
- * to prevent connection errors in local development
+ * Disable automatic translation updates. (WordPress.org API HTTP calls are
+ * short-circuited in filters.php's pre_http_request handler.)
  */
 add_filter('auto_update_translation', '__return_false');
 add_filter('translations_api', '__return_false');
-add_filter('pre_http_request', function($preempt, $parsed_args, $url) {
-    // Block requests to WordPress.org API endpoints
-    if (strpos($url, 'api.wordpress.org') !== false) {
-        return new \WP_Error('http_request_failed', 'Blocked WordPress.org API request');
-    }
-    return $preempt;
-}, 10, 3);
 
 /**
  * Register the theme assets.
@@ -178,6 +171,41 @@ add_filter('register_block_type_args', function ($args, $name) {
         $args['attributes']['align'] = [
             'type' => 'string',
             'default' => '',
+        ];
+    }
+
+    // Section behaviour / reveal / parallax extensions on core/group.
+    // The attribute schema is registered globally so values serialise in the
+    // saved markup regardless of post type; the inspector UI in editor.js is
+    // gated to the project (portfolio) CPT.
+    if ($name === 'core/group') {
+        $args['attributes']['behavior'] = [
+            'type' => 'string',
+            'default' => 'normal',
+        ];
+        $args['attributes']['minHeight'] = [
+            'type' => 'string',
+            'default' => 'auto',
+        ];
+        $args['attributes']['contentAlign'] = [
+            'type' => 'string',
+            'default' => 'center',
+        ];
+        $args['attributes']['reveal'] = [
+            'type' => 'string',
+            'default' => 'none',
+        ];
+        $args['attributes']['revealDirection'] = [
+            'type' => 'string',
+            'default' => 'up',
+        ];
+        $args['attributes']['revealStagger'] = [
+            'type' => 'number',
+            'default' => 60,
+        ];
+        $args['attributes']['parallax'] = [
+            'type' => 'boolean',
+            'default' => false,
         ];
     }
 
@@ -412,6 +440,92 @@ add_action('graphql_register_types', function () {
             'answer' => ['type' => 'String'], // Backward compatibility
             'otherText' => ['type' => 'String'],
         ],
+    ]);
+});
+
+/**
+ * Portfolio authoring UX: a default editor template for new project items and
+ * block patterns for adding correctly-configured section blocks.
+ */
+
+// New project posts start with the sticky, full-bleed first section + a
+// full-width image placeholder, matching the front-end layout. Authors can add
+// more sections below it (and the "Portfolio:" patterns make that one click).
+add_filter('register_post_type_args', function ($args, $post_type) {
+    if ($post_type !== 'project') {
+        return $args;
+    }
+
+    $args['template'] = [
+        // Excerpt, editable inline at the top of the canvas (saves to the post
+        // excerpt field that the front-end metadata box reads). Filtered out of
+        // the rendered front-end blocks — see the portfolio page loader.
+        ['core/post-excerpt'],
+        ['core/group', [
+            'align'        => 'full',
+            'behavior'     => 'stick',
+            'minHeight'    => 'screen',
+            'contentAlign' => 'stretch',
+            'layout'       => ['type' => 'default'],
+        ], [
+            ['core/image', ['align' => 'full']],
+        ]],
+        // Trailing empty paragraph so there's an insertion point below the
+        // first section (a template ending in a group leaves no appender).
+        ['core/paragraph'],
+    ];
+
+    return $args;
+}, 10, 2);
+
+// Block patterns for adding new portfolio sections, scoped to the project CPT.
+add_action('init', function () {
+    if (!function_exists('register_block_pattern')) {
+        return;
+    }
+
+    register_block_pattern_category('nhtbl-portfolio', [
+        'label' => __('Portfolio', 'sage'),
+    ]);
+
+    // Image section: full-bleed grey section, image at content ("wide") width.
+    register_block_pattern('nhtbl/portfolio-image', [
+        'title'      => __('Portfolio: Image section', 'sage'),
+        'description' => __('Full-bleed grey section with a wide image.', 'sage'),
+        'categories' => ['nhtbl-portfolio'],
+        'postTypes'  => ['project'],
+        'content'    => <<<'HTML'
+<!-- wp:group {"align":"full","minHeight":"screen","backgroundColor":"nhtbl-grey-base","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull has-nhtbl-grey-base-background-color has-background"><!-- wp:image {"sizeSlug":"large","align":"wide"} -->
+<figure class="wp-block-image alignwide size-large"><img alt=""/></figure>
+<!-- /wp:image --></div>
+<!-- /wp:group -->
+HTML,
+    ]);
+
+    // Two-up: black section, text on the left, image on the right.
+    register_block_pattern('nhtbl/portfolio-two-up', [
+        'title'      => __('Portfolio: Two-up (text left, image right)', 'sage'),
+        'description' => __('Full-bleed black section: text column on the left, image on the right.', 'sage'),
+        'categories' => ['nhtbl-portfolio'],
+        'postTypes'  => ['project'],
+        'content'    => <<<'HTML'
+<!-- wp:group {"align":"full","minHeight":"screen","backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background"><!-- wp:columns {"verticalAlignment":"center"} -->
+<div class="wp-block-columns are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center"} -->
+<div class="wp-block-column is-vertically-aligned-center"><!-- wp:paragraph -->
+<p>Add your text here…</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"verticalAlignment":"center"} -->
+<div class="wp-block-column is-vertically-aligned-center"><!-- wp:image {"sizeSlug":"large","align":"wide"} -->
+<figure class="wp-block-image alignwide size-large"><img alt=""/></figure>
+<!-- /wp:image --></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns --></div>
+<!-- /wp:group -->
+HTML,
     ]);
 });
 

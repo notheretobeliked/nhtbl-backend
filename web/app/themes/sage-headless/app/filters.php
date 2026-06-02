@@ -11,14 +11,21 @@
  * Disable WordPress.org API calls to prevent SSL errors
  */
 add_filter('pre_http_request', function ($preempt, $parsed_args, $url) {
-    // Block requests to WordPress.org API endpoints
-    if (strpos($url, 'wordpress.org') !== false || 
-        strpos($url, 'api.wordpress.org') !== false || 
-        strpos($url, 'downloads.wordpress.org') !== false ||
+    // Short-circuit WordPress.org API calls (headless / Composer-managed site).
+    // Return a benign empty 200 — NOT a WP_Error: a WP_Error makes core retry
+    // over plain HTTP and then emit a "could not establish a secure connection
+    // to WordPress.org" notice, which breaks wp-cli. An empty body decodes to
+    // null, so update checks simply find nothing and exit cleanly.
+    if (strpos($url, 'wordpress.org') !== false ||
         strpos($url, 's.w.org') !== false ||
         strpos($url, 'wp.org') !== false) {
-        error_log('Blocked WordPress.org request: ' . $url);
-        return new \WP_Error('http_request_failed', 'WordPress.org API calls disabled to prevent SSL errors.');
+        return [
+            'headers'  => [],
+            'body'     => '',
+            'response' => ['code' => 200, 'message' => 'OK'],
+            'cookies'  => [],
+            'filename' => null,
+        ];
     }
     return $preempt;
 }, 10, 3);

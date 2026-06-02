@@ -30,9 +30,49 @@
 
 
 .post-type-project .editor-styles-wrapper {
-    @apply bg-black !text-white;
+    @apply bg-nhtbl-grey-base !text-black;
 
     .wp-block-post-content > .wp-block {
         @apply mb-7;
     }
+}
+
+/* Reflect a core/group's "Minimum height" and "Content alignment" settings in
+   the editor canvas so the section matches the front end while authoring. These
+   classes are added to the group's block wrapper by the editor.BlockListBlock
+   filter in editor.js. */
+.editor-styles-wrapper .editor-min-screen {
+    min-height: 100vh;
+}
+.editor-styles-wrapper .editor-min-half {
+    min-height: 50vh;
+}
+
+/* Content alignment only matters when the section has extra vertical space, so
+   the min-height wrappers become flex columns. Centered by default (matching
+   the front end); the align classes override the vertical distribution. */
+.editor-styles-wrapper .editor-min-screen,
+.editor-styles-wrapper .editor-min-half {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.editor-styles-wrapper .editor-align-top {
+    justify-content: flex-start;
+}
+.editor-styles-wrapper .editor-align-bottom {
+    justify-content: flex-end;
+}
+.editor-styles-wrapper .editor-align-stretch {
+    justify-content: stretch;
+}
+.editor-styles-wrapper .editor-align-stretch > * {
+    flex: 1 1 auto;
+}
+
+/* Hide the Post Excerpt block's "Add 'Read more' link text" affordance — the
+   excerpt is edited inline, the read-more link isn't used in this theme. */
+.editor-styles-wrapper .wp-block-post-excerpt__more-link,
+.editor-styles-wrapper .wp-block-post-excerpt__more-text {
+    display: none;
 }
