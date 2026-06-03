@@ -53,6 +53,13 @@
         }
       ]
     },
+    "blocks": {
+      "core/group": {
+        "color": {
+          "custom": true
+        }
+      }
+    },
     "custom": {
       "spacing": {},
       "typography": {

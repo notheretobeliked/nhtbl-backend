@@ -51,7 +51,7 @@ export default async (app) => {
         backgroundImage: true,
       },
       color: {
-        custom: false,
+        custom: true,
         customDuotone: false,
         customGradient: false,
         defaultDuotone: false,

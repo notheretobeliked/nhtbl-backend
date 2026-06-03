@@ -69,6 +69,15 @@ export default async (app) => {
         defaultPalette: true,
         duotone: [],
       },
+      // Allow custom (hex) background/text colours on core/group only — the rest
+      // of the editor stays restricted to the brand palette above.
+      blocks: {
+        'core/group': {
+          color: {
+            custom: true,
+          },
+        },
+      },
       custom: {
         spacing: {},
         typography: {
