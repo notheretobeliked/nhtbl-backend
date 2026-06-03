@@ -602,6 +602,13 @@ add_action('template_redirect', function() {
     $urls = get_frontend_urls();
     $path = wp_parse_url($request_uri ?: '/', PHP_URL_PATH) ?: '/';
 
+    // Never redirect backend static assets — Bedrock content (uploads, plugins,
+    // themes under /app/) and WP core (/wp/) must be served by the backend, not
+    // bounced to the frontend (this was breaking /app/uploads images).
+    if (preg_match('#^/(app|wp)/#', $path)) {
+        return;
+    }
+
     // Strip the /wp prefix if present (Bedrock structure).
     $wp_base = wp_parse_url(home_url(), PHP_URL_PATH) ?: '';
     if ($wp_base && strpos($path, $wp_base) === 0) {

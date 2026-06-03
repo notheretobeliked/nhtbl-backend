@@ -456,6 +456,10 @@ add_filter('register_post_type_args', function ($args, $post_type) {
         return $args;
     }
 
+    // Keep the editor fully editable: the template only seeds starter blocks,
+    // it must not lock inserting/moving/removing (incl. blocks from patterns).
+    $args['template_lock'] = false;
+
     $args['template'] = [
         // Excerpt, editable inline at the top of the canvas (saves to the post
         // excerpt field that the front-end metadata box reads). Filtered out of

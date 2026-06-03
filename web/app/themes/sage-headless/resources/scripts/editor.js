@@ -185,6 +185,53 @@ const groupEditorClasses = wp.compose.createHigherOrderComponent(
 wp.hooks.addFilter('editor.BlockListBlock', 'nhtbl/group-editor-classes', groupEditorClasses);
 
 /**
+ * Insert block patterns "detached".
+ *
+ * WordPress tags inserted (unsynced) patterns with metadata.patternName, which
+ * puts them in content-only editing — you can change text/images but not
+ * alignment or block settings, and can't add/remove/reorder inner blocks. We
+ * strip that binding as soon as it appears, so inserted patterns are immediately
+ * full, plain, editable blocks (no manual "Detach" needed).
+ */
+wp.domReady(() => {
+  const STORE = 'core/block-editor';
+  const { select, dispatch, subscribe } = wp.data;
+
+  // Collect every block (at any depth) that still carries a patternName binding.
+  const collectBound = (blocks, acc) => {
+    for (const block of blocks) {
+      if (block?.attributes?.metadata?.patternName) {
+        acc.push(block);
+      }
+      if (block.innerBlocks && block.innerBlocks.length) {
+        collectBound(block.innerBlocks, acc);
+      }
+    }
+    return acc;
+  };
+
+  let working = false;
+  subscribe(() => {
+    if (working) return;
+    const editor = select(STORE);
+    if (!editor || !editor.getBlocks) return;
+
+    const bound = collectBound(editor.getBlocks(), []);
+    if (!bound.length) return;
+
+    working = true;
+    const { updateBlockAttributes } = dispatch(STORE);
+    bound.forEach((block) => {
+      const { patternName, ...rest } = block.attributes.metadata;
+      updateBlockAttributes(block.clientId, {
+        metadata: Object.keys(rest).length ? rest : undefined,
+      });
+    });
+    working = false;
+  }, STORE);
+});
+
+/**
  * @see {@link https://webpack.js.org/api/hot-module-replacement/}
  */
 if (import.meta.webpackHot) import.meta.webpackHot.accept(console.error);
