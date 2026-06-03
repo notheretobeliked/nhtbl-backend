@@ -306,6 +306,26 @@ function is_animated_gif($file): bool
     return $frames > 1;
 }
 
+/**
+ * Detect an animated AVIF from its file brand. Needed because ImageMagick 6's
+ * libheif can't decode AVIF image sequences — Imagick::getNumberImages() returns
+ * 1 for a genuinely animated AVIF — so frame-count detection is unreliable. An
+ * animated AVIF declares the "avis" brand in its leading ftyp box.
+ */
+function is_animated_avif($file): bool
+{
+    if (!is_string($file) || !is_readable($file)) {
+        return false;
+    }
+    $fh = fopen($file, 'rb');
+    if (!$fh) {
+        return false;
+    }
+    $head = fread($fh, 64); // the ftyp box (major + compatible brands) sits here
+    fclose($fh);
+    return is_string($head) && strpos($head, 'avis') !== false;
+}
+
 add_filter('wp_generate_attachment_metadata', function ($metadata, $attachment_id) {
     if (empty($metadata['file']) || empty($metadata['sizes'])) {
         return $metadata;
@@ -343,6 +363,24 @@ add_filter('wp_generate_attachment_metadata', function ($metadata, $attachment_i
     } catch (\Throwable $e) {
         return $metadata;
     }
+    // IM6's libheif can't decode AVIF image sequences (getNumberImages() == 1 for
+    // a genuinely animated AVIF). When the brand says it's animated but Imagick
+    // can't expand the frames, we can't downscale it — so serve the original
+    // animated AVIF at every size. Browsers animate it; it's just not resized.
+    // (On IM7 getNumberImages() sees all frames, so this branch never runs and
+    // the file gets proper animated-WebP sizes below.)
+    if (!$animated && $mime === 'image/avif' && is_animated_avif($file)) {
+        $original = wp_basename($metadata['file']);
+        foreach ($metadata['sizes'] as $name => $size) {
+            $metadata['sizes'][$name]['file'] = $original;
+            $metadata['sizes'][$name]['width'] = $metadata['width'];
+            $metadata['sizes'][$name]['height'] = $metadata['height'];
+            $metadata['sizes'][$name]['mime-type'] = 'image/avif';
+            unset($metadata['sizes'][$name]['sources']);
+        }
+        return $metadata;
+    }
+
     if (!$animated) {
         return $metadata;
     }
@@ -372,7 +410,12 @@ add_filter('wp_generate_attachment_metadata', function ($metadata, $attachment_i
                     // so nothing is actually cropped).
                     $frame->cropThumbnailImage((int) $size['width'], (int) $size['height']);
                 }
-                $img = $img->deconstructImages();
+                // NB: do NOT deconstructImages() here. It rewrites frames as
+                // minimal sub-rectangles (a GIF optimisation); ImageMagick 6's
+                // animated-WebP encoder then rejects the odd-sized diff frames
+                // ("Invalid frame dimensions"). Keeping the coalesced full-size
+                // frames is more compatible — libwebp does its own inter-frame
+                // compression regardless.
                 $img->setImageFormat('webp');
                 $img->setImageIterations(0);                           // loop forever
                 $img->setOption('webp:method', '4');                  // 0=fast/larger … 6=slow/smallest
