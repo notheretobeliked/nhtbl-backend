@@ -87,7 +87,7 @@ export default async (app) => {
       },
       layout: {
         contentSize: '856px',
-        wideSize: '1300px',
+        wideSize: '1200px',
       },
     })
     .useTailwindColors()

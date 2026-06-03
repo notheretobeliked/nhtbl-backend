@@ -265,13 +265,172 @@ add_filter('graphql_resolve_field', function ($result, $source, $args, $context,
  * Configure WebP Uploads plugin to generate both WebP and AVIF
  */
 add_filter('webp_uploads_upload_image_mime_transforms', function($transforms) {
-    // Ensure both WebP and AVIF are generated
+    // Ensure both WebP and AVIF are generated. GIFs are intentionally left out:
+    // WebP/AVIF generation flattens animated GIFs to a single frame, so we keep
+    // GIFs as-is (and serve the original animated file at every size below).
     return [
         'image/jpeg' => ['image/webp', 'image/avif'],
         'image/png' => ['image/webp', 'image/avif'],
-        'image/gif' => ['image/webp'],
     ];
 });
+
+/**
+ * Animated image support (e.g. an animated featured image: GIF, AVIF or WebP).
+ *
+ * WordPress resizes only the first frame, so every generated size of an animated
+ * source would be static. With Imagick we rebuild each size as a resized animated
+ * WebP (frame by frame); without Imagick we fall back to serving the original
+ * animated GIF at every size. Either way the size metadata still exists, so the
+ * size-based <Image> component keeps working.
+ *
+ * Note: existing animated images need their thumbnails regenerated to pick this
+ * up. is_animated_gif() is only the no-Imagick fallback probe; the Imagick path
+ * detects animation generically via Imagick::getNumberImages().
+ */
+function is_animated_gif($file): bool
+{
+    if (!is_string($file) || !is_readable($file)) {
+        return false;
+    }
+    $fh = fopen($file, 'rb');
+    if (!$fh) {
+        return false;
+    }
+    $frames = 0;
+    $chunk = '';
+    while (!feof($fh) && $frames < 2) {
+        $chunk = substr($chunk, -16) . fread($fh, 1024 * 100);
+        $frames += preg_match_all('/\x00\x21\xF9\x04.{4}\x00[\x2C\x21]/s', $chunk);
+    }
+    fclose($fh);
+    return $frames > 1;
+}
+
+add_filter('wp_generate_attachment_metadata', function ($metadata, $attachment_id) {
+    if (empty($metadata['file']) || empty($metadata['sizes'])) {
+        return $metadata;
+    }
+    // Only formats that can carry animation and that WordPress's resizer flattens
+    // to a single frame.
+    $mime = get_post_mime_type($attachment_id);
+    if (!in_array($mime, ['image/gif', 'image/avif', 'image/webp'], true)) {
+        return $metadata;
+    }
+    $file = get_attached_file($attachment_id);
+
+    // Without Imagick we can only handle GIFs, and only by serving the original
+    // at every size (see fallback below).
+    if (!class_exists('Imagick')) {
+        if ($mime === 'image/gif' && is_animated_gif($file)) {
+            $original = wp_basename($metadata['file']);
+            foreach ($metadata['sizes'] as $name => $size) {
+                $metadata['sizes'][$name]['file'] = $original;
+                $metadata['sizes'][$name]['width'] = $metadata['width'];
+                $metadata['sizes'][$name]['height'] = $metadata['height'];
+                $metadata['sizes'][$name]['mime-type'] = 'image/gif';
+                unset($metadata['sizes'][$name]['sources']);
+            }
+        }
+        return $metadata;
+    }
+
+    // Is the source actually animated? Imagick reads frame count for any format
+    // (GIF / animated AVIF / animated WebP).
+    try {
+        $probe = new \Imagick($file);
+        $animated = $probe->getNumberImages() > 1;
+        $probe->clear();
+    } catch (\Throwable $e) {
+        return $metadata;
+    }
+    if (!$animated) {
+        return $metadata;
+    }
+
+    // Regenerate each size as a resized ANIMATED WebP. WordPress only resizes the
+    // first frame, so the size files it created are static — we rebuild each one
+    // frame by frame. Coalesce ONCE (the costliest step — it expands every frame
+    // to full size) and clone per size rather than re-reading + re-coalescing the
+    // source for each of the ~6 registered sizes.
+    $dir = dirname($file);
+    $source = null;
+    try {
+        $source = (new \Imagick($file))->coalesceImages();
+    } catch (\Throwable $e) {
+        error_log('Animated image load failed for ' . $file . ': ' . $e->getMessage());
+    }
+    if ($source) {
+        foreach ($metadata['sizes'] as $name => $size) {
+            $old_size_file = $dir . '/' . $size['file'];               // the static resize
+            $webp_name     = preg_replace('/\.\w+$/', '.webp', $size['file']);
+            $webp_path     = $dir . '/' . $webp_name;
+            try {
+                $img = clone $source;
+                foreach ($img as $frame) {
+                    // Scales-to-fill + centre-crops — correct for both cropped and
+                    // scaled sizes (scaled sizes already share the source aspect,
+                    // so nothing is actually cropped).
+                    $frame->cropThumbnailImage((int) $size['width'], (int) $size['height']);
+                }
+                $img = $img->deconstructImages();
+                $img->setImageFormat('webp');
+                $img->setImageIterations(0);                           // loop forever
+                $img->setOption('webp:method', '4');                  // 0=fast/larger … 6=slow/smallest
+                $img->setImageCompressionQuality(72);
+                $img->writeImages($webp_path, true);                   // single animated webp
+                $img->clear();
+
+                $metadata['sizes'][$name]['file']      = $webp_name;
+                $metadata['sizes'][$name]['mime-type'] = 'image/webp';
+                unset($metadata['sizes'][$name]['sources']);
+                if ($old_size_file !== $webp_path) {
+                    @unlink($old_size_file);                           // drop the static resize
+                }
+            } catch (\Throwable $e) {
+                error_log('Animated image->WebP failed for ' . $webp_path . ': ' . $e->getMessage());
+            }
+        }
+        $source->clear();
+    }
+
+    return $metadata;
+}, 99, 2);
+
+/**
+ * Auto-set the featured image from the first in-content image when a page or
+ * project is saved without one (used by the front-end metadata box / listings).
+ */
+add_action('save_post', function ($post_id, $post) {
+    if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
+        return;
+    }
+    if (!in_array($post->post_type, ['page', 'project'], true)) {
+        return;
+    }
+    if (has_post_thumbnail($post_id) || empty($post->post_content)) {
+        return;
+    }
+
+    $find_image = function ($blocks) use (&$find_image) {
+        foreach ($blocks as $block) {
+            if (in_array($block['blockName'], ['core/image', 'core/cover'], true) && !empty($block['attrs']['id'])) {
+                return (int) $block['attrs']['id'];
+            }
+            if (!empty($block['innerBlocks'])) {
+                $id = $find_image($block['innerBlocks']);
+                if ($id) {
+                    return $id;
+                }
+            }
+        }
+        return 0;
+    };
+
+    $image_id = $find_image(parse_blocks($post->post_content));
+    if ($image_id && get_post_type($image_id) === 'attachment') {
+        set_post_thumbnail($post_id, $image_id);
+    }
+}, 20, 2);
 
 /**
  * Initialize Image Color Analysis
