@@ -7,7 +7,7 @@ const config = {
     },
     fontFamily: {
       'sans': ['Inter Tight'],
-      'display': ['Avara'],
+      'display': ['Space Grotesk'],
     },
     colors: {
       'black': "#000000",

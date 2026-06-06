@@ -82,6 +82,11 @@ export default async (app) => {
             fontFamily: '"Avara", Georgia, "Times New Roman", Times, serif',
             name: 'Avara Display',
             slug: 'avara-display'
+          },
+          {
+            fontFamily: '"Space Grotesk", sans-serif',
+            name: 'Space Grotesk',
+            slug: 'font-display'
           }
         ]
       },
