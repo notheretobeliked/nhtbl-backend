@@ -232,6 +232,66 @@ wp.domReady(() => {
 });
 
 /**
+ * Mirror the page's chosen background colour (the `background_colour` ACF field
+ * in the side panel) onto the editor canvas, so the editor previews the real
+ * page background. Updates live as the field changes.
+ */
+const BG_PALETTE = {
+  black: '#000000',
+  white: '#FFFFFF',
+  'nhtbl-grey-base': '#D9D9D9',
+  'nhtbl-green-base': '#E0FF00',
+  'nhtbl-purple-base': '#D59CE5',
+  'nhtbl-purple-light': '#E4D5E8',
+};
+
+let currentEditorBg = '#FFFFFF';
+
+// The canvas can live in the main document or inside the editor iframe.
+function editorCanvasNodes() {
+  const nodes = Array.from(document.querySelectorAll('.editor-styles-wrapper'));
+  document.querySelectorAll('iframe[name="editor-canvas"]').forEach((frame) => {
+    try {
+      const doc = frame.contentDocument;
+      if (doc) nodes.push(...doc.querySelectorAll('.editor-styles-wrapper'));
+    } catch (e) {
+      /* cross-origin guard — ignore */
+    }
+  });
+  return nodes;
+}
+
+function applyEditorBg(color) {
+  editorCanvasNodes().forEach((el) => {
+    if (el.style.backgroundColor !== color) el.style.backgroundColor = color;
+  });
+}
+
+function readBgSlug() {
+  const field = document.querySelector('.acf-field[data-name="background_colour"]');
+  const select = field && field.querySelector('select');
+  return (select && select.value) || 'white';
+}
+
+function syncEditorBg() {
+  currentEditorBg = BG_PALETTE[readBgSlug()] || '#FFFFFF';
+  applyEditorBg(currentEditorBg);
+}
+
+// React to the field changing (ACF select2 fires a native change on its select).
+document.addEventListener('change', (event) => {
+  if (event.target.closest?.('.acf-field[data-name="background_colour"]')) {
+    syncEditorBg();
+  }
+});
+
+// Initial value once ACF is ready, and keep it applied as the canvas re-renders.
+if (window.acf) window.acf.addAction('ready', syncEditorBg);
+if (window.wp?.data?.subscribe) {
+  window.wp.data.subscribe(() => applyEditorBg(currentEditorBg));
+}
+
+/**
  * @see {@link https://webpack.js.org/api/hot-module-replacement/}
  */
 if (import.meta.webpackHot) import.meta.webpackHot.accept(console.error);

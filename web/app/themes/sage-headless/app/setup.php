@@ -735,3 +735,80 @@ HTML,
     ]);
 });
 
+
+/**
+ * Subpage Navigation block: resolve the sibling/child page links server-side so
+ * the front end gets them in the GraphQL response (no extra roundtrip).
+ *
+ * Block field resolvers receive the parsed block array as their source, which
+ * doesn't carry the post it belongs to — so stamp the current post id onto every
+ * block as it's resolved, then read it in the navItems resolver below.
+ */
+add_filter('wpgraphql_content_blocks_resolve_blocks', function ($blocks, $node) {
+    $postId = is_object($node) && isset($node->databaseId) ? (int) $node->databaseId : 0;
+    if (!$postId) {
+        return $blocks;
+    }
+    $stamp = function (&$list) use (&$stamp, $postId) {
+        foreach ($list as &$block) {
+            if (is_array($block)) {
+                $block['contextPostId'] = $postId;
+                if (!empty($block['innerBlocks'])) {
+                    $stamp($block['innerBlocks']);
+                }
+            }
+        }
+        unset($block);
+    };
+    $stamp($blocks);
+
+    return $blocks;
+}, 10, 2);
+
+add_action('graphql_register_types', function () {
+    register_graphql_object_type('SubpageNavItem', [
+        'description' => 'A page link within a Subpage Navigation block.',
+        'fields' => [
+            'databaseId' => ['type' => 'Int'],
+            'title' => ['type' => 'String'],
+            'uri' => ['type' => 'String'],
+            'isCurrent' => ['type' => 'Boolean'],
+        ],
+    ]);
+
+    register_graphql_field('AcfSubpageNavigation', 'navItems', [
+        'type' => ['list_of' => 'SubpageNavItem'],
+        'description' => 'Sibling or child page links resolved for this nav block.',
+        'resolve' => function ($block) {
+            $postId = $block['contextPostId'] ?? 0;
+            $page = $postId ? get_post($postId) : null;
+            if (!$page) {
+                return [];
+            }
+
+            $source = $block['attrs']['data']['nav_source']
+                ?? $block['attrs']['nav_source']
+                ?? 'siblings';
+
+            $parentId = $source === 'subpages' ? (int) $page->ID : (int) $page->post_parent;
+
+            $children = get_posts([
+                'post_type' => 'page',
+                'post_status' => 'publish',
+                'post_parent' => $parentId,
+                'orderby' => 'menu_order title',
+                'order' => 'ASC',
+                'numberposts' => -1,
+            ]);
+
+            return array_map(function ($child) use ($page) {
+                return [
+                    'databaseId' => (int) $child->ID,
+                    'title' => get_the_title($child->ID),
+                    'uri' => wp_make_link_relative(get_permalink($child->ID)),
+                    'isCurrent' => ((int) $child->ID === (int) $page->ID),
+                ];
+            }, $children);
+        },
+    ]);
+});

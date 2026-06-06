@@ -25,6 +25,7 @@ class PageFields extends Field
             'choices' => [
                 'black' => 'Black',
                 'white' => 'White',
+                'nhtbl-grey-base' => 'Grey',
                 'nhtbl-green-base' => 'Green',
                 'nhtbl-purple-base' => 'Purple',
                 'nhtbl-purple-light' => 'Light purple',

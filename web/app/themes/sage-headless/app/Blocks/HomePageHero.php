@@ -145,7 +145,31 @@ class HomePageHero extends Block
     {
         return [
             'images' => $this->images(),
+            'box_bg' => $this->boxBackground(),
         ];
+    }
+
+    /**
+     * Background class/style for the inner content card, derived from the
+     * block's configured background colour (preset slug or custom hex).
+     * Defaults to white. Mirrors what the Svelte component renders.
+     *
+     * @return array{class: string, style: string}
+     */
+    private function boxBackground(): array
+    {
+        $block = $this->block ?? null;
+        $slug = $block->backgroundColor ?? null;
+        $style = is_array($block->style ?? null) ? $block->style : [];
+        $custom = $style['color']['background'] ?? null;
+
+        if ($custom) {
+            return ['class' => '', 'style' => "background-color: {$custom};"];
+        }
+        if ($slug) {
+            return ['class' => "has-{$slug}-background-color has-background", 'style' => ''];
+        }
+        return ['class' => '', 'style' => 'background-color: #ffffff;'];
     }
 
     /**

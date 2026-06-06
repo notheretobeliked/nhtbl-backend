@@ -287,6 +287,16 @@ class PortfolioBlock extends Block
                     'width' => '50',
                 ],
             ])
+            ->addTrueFalse('show_tags', [
+                'label' => 'Show category tags',
+                'instructions' => 'Display the service/category tags on each project.',
+                'message' => 'Show tags',
+                'default_value' => 1,
+                'ui' => 1,
+                'wrapper' => [
+                    'width' => '50',
+                ],
+            ])
             ->addNumber('projects_per_page', [
                 'label' => 'Projects Per Page',
                 'instructions' => 'Number of projects to show (0 for all). Only applies when not using "Specific Projects".',

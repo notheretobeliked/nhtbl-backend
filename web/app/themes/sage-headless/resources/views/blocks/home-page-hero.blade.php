@@ -6,8 +6,9 @@
     </div>
     <div class="absolute flex top-0 h-full w-full p-8 items-center justify-center">
         <div
-            class="relative w-full h-full bg-nhtbl-green-base flex justify-center items-center p-8 leading-relaxed text-black">
-            <div class="max-w-[856px] font-serif text-xl md:text-2xl">
+            class="relative w-full h-full flex justify-center items-center p-8 leading-relaxed text-black {{ $box_bg['class'] }}"
+            style="{{ $box_bg['style'] }}">
+            <div class="max-w-[856px] font-serif text-xl md:text-2xl ">
                 <InnerBlocks template="{{ $block->template }}" />
             </div>
         </div>
