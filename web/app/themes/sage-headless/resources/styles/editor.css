@@ -10,6 +10,23 @@
         @apply font-sans text-base mb-3;
     }
 
+    /* Tailwind's preflight strips list markers; restore them in the canvas so
+       core/list blocks look like the front end while authoring. */
+    ul {
+        @apply list-disc;
+        padding-left: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    ol {
+        @apply list-decimal;
+        padding-left: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    li {
+        @apply font-sans;
+        margin-bottom: 0.25rem;
+    }
+
     h1.editor-post-title {
         @apply text-xl mb-4;
     }

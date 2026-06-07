@@ -247,15 +247,17 @@ const BG_PALETTE = {
 
 let currentEditorBg = '#FFFFFF';
 
-// The canvas can live in the main document or inside the editor iframe.
+// The canvas can live in the main document or inside the editor iframe. Newer
+// WP iframes the canvas (and the iframe name varies), so check every same-origin
+// iframe, not just one by name.
 function editorCanvasNodes() {
   const nodes = Array.from(document.querySelectorAll('.editor-styles-wrapper'));
-  document.querySelectorAll('iframe[name="editor-canvas"]').forEach((frame) => {
+  document.querySelectorAll('iframe').forEach((frame) => {
     try {
       const doc = frame.contentDocument;
       if (doc) nodes.push(...doc.querySelectorAll('.editor-styles-wrapper'));
     } catch (e) {
-      /* cross-origin guard — ignore */
+      /* cross-origin iframe — ignore */
     }
   });
   return nodes;
@@ -285,10 +287,11 @@ document.addEventListener('change', (event) => {
   }
 });
 
-// Initial value once ACF is ready, and keep it applied as the canvas re-renders.
+// Initial value once ACF is ready, and re-sync as the editor/canvas re-renders
+// (the iframe may mount after this runs — re-reading + applying handles that).
 if (window.acf) window.acf.addAction('ready', syncEditorBg);
 if (window.wp?.data?.subscribe) {
-  window.wp.data.subscribe(() => applyEditorBg(currentEditorBg));
+  window.wp.data.subscribe(syncEditorBg);
 }
 
 /**
