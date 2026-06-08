@@ -16,6 +16,32 @@
 namespace App;
 
 /**
+ * The template's setup.php restricts allowed_block_types_all to a core-only
+ * list; without the nhtbl ACF blocks in it, wp-graphql-content-blocks drops them
+ * from editorBlocks (and the editor hides them). Append the project's blocks.
+ */
+add_filter('allowed_block_types_all', function ($allowed) {
+    if (!is_array($allowed)) {
+        return $allowed; // `true` = all blocks allowed; nothing to add
+    }
+    $project = [
+        'acf/home-page-hero',
+        'acf/portfolio-block',
+        'acf/slideshow',
+        'acf/slide',
+        'acf/image-gallery',
+        'acf/galerie',
+        'acf/link-block',
+        'acf/service-push',
+        'acf/subpage-navigation',
+        'acf/survey-block',
+        // seeded into the project CPT editor template / used in content
+        'core/post-excerpt',
+    ];
+    return array_values(array_unique(array_merge($allowed, $project)));
+}, 20);
+
+/**
  * Configure WebP Uploads plugin to generate both WebP and AVIF.
  * GIFs are intentionally excluded: WebP/AVIF generation flattens animated GIFs
  * to a single frame, so we keep GIFs as-is and serve the original animated file
