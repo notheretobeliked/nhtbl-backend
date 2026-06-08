@@ -66,7 +66,8 @@
     "ashhitch/wp-graphql-yoast-seo": "^5",
     "wpackagist-plugin/simple-custom-post-order": "^2",
     "wpengine/advanced-custom-fields-pro": "^6",
-    "appsero/client": "2.0.4 as 1.2.1"
+    "appsero/client": "2.0.4 as 1.2.1",
+    "ksubileau/color-thief-php": "^2.0"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.7.1",

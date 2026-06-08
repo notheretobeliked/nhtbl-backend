@@ -490,6 +490,18 @@ add_action('template_redirect', function() {
     if (strpos($_SERVER['REQUEST_URI'], '/wp-json/') !== false) {
         return;
     }
+    // Don't redirect static assets: uploads / plugin / theme files under /app/,
+    // WordPress core under /wp/, or anything with a static file extension. These
+    // are served by the webserver; a missing one should 404, not 301 to the
+    // frontend host (which has no such asset). [backport to template]
+    $req = $_SERVER['REQUEST_URI'] ?? '';
+    if (
+        strpos($req, '/app/') !== false
+        || strpos($req, '/wp/') === 0
+        || preg_match('#\.(webp|avif|png|jpe?g|gif|svg|ico|css|js|mjs|woff2?|ttf|otf|eot|map|pdf|zip|mp4|webm|txt|xml)(\?|$)#i', $req)
+    ) {
+        return;
+    }
     // Don't redirect robots.txt, sitemaps, or feeds
     if (is_robots() || is_feed()) {
         return;

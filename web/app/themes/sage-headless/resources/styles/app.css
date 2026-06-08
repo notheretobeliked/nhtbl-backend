@@ -1,145 +1,148 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url(https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,500;1,500&display=swap);
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+@font-face {
+    font-family: 'Avara';
+    src:    url('../fonts/Avara-Bold.woff2') format('woff2'),
+            url('../fonts/Avara-Bold.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avara';
+    src:    url('../fonts/Avara-BoldItalic.woff2') format('woff2'),
+            url('../fonts/Avara-BoldItalic.woff') format('woff');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /**
- * Core prose typography.
+ * Editor + base typography.
  *
  * This stylesheet is loaded into the block editor via add_editor_style()
  * (see app/setup.php) — WordPress auto-scopes these selectors under
- * .editor-styles-wrapper — and is also enqueued on the theme front end.
+ * .editor-styles-wrapper.
  *
  * In @layer components so the rules beat Tailwind's preflight reset (which
- * otherwise strips heading sizes and paragraph margins, leaving the editor
- * with no visual hierarchy). Keep the scale in sync with the SvelteKit
- * frontend's base typography so the editor matches the rendered site.
+ * otherwise strips heading sizes + list markers, leaving the editor with no
+ * visual hierarchy). Sizes use the nhtbl Tailwind tokens (sm/base/lg/xl/2xl);
+ * authors can still override per-heading via the editor font-size picker
+ * (has-*-font-size, sized from the theme.json presets).
  */
 @layer components {
-	p {
-		@apply font-sans text-base mb-4;
-	}
+    body {
+        @apply font-sans;
+    }
 
-	h1 {
-		@apply font-sans text-2xl md:text-3xl lg:text-4xl mb-4;
-	}
+    p {
+        @apply font-sans text-base mb-3;
+    }
 
-	h2 {
-		@apply font-sans text-xl md:text-2xl mb-3;
-	}
+    h1 {
+        @apply font-display text-2xl mb-4;
+    }
+    h2 {
+        @apply font-display text-xl mb-2;
+    }
+    h3 {
+        @apply font-display text-lg mb-3;
+    }
+    h4 {
+        @apply font-display text-base mb-2;
+    }
+    h5,
+    h6 {
+        @apply font-display text-sm mb-2;
+    }
 
-	h3 {
-		@apply font-sans text-lg md:text-xl mb-3;
-	}
+    /* Explicit font-size presets (picker) also use the display face. */
+    .has-lg-font-size,
+    .has-xl-font-size,
+    .has-2-xl-font-size {
+        @apply font-display;
+    }
 
-	h4 {
-		@apply font-sans text-base md:text-lg mb-2;
-	}
+    h1.editor-post-title {
+        @apply text-xl mb-4;
+    }
 
-	h5,
-	h6 {
-		@apply font-sans text-sm md:text-base mb-2;
-	}
+    /* Tailwind's preflight strips list markers; restore them in the canvas so
+       core/list blocks look like the front end while authoring. */
+    ul,
+    ol {
+        @apply font-sans text-base mb-3 pl-6;
+    }
+    ul {
+        @apply list-disc;
+    }
+    ol {
+        @apply list-decimal;
+    }
+    li {
+        @apply mb-1;
+    }
 
-	ul,
-	ol {
-		@apply font-sans text-base mb-4 pl-6;
-	}
+    strong {
+        @apply font-normal;
+        background: url(../images/underline.svg) bottom repeat-x;
+    }
 
-	ul {
-		@apply list-disc;
-	}
-
-	ol {
-		@apply list-decimal;
-	}
-
-	li {
-		@apply mb-1;
-	}
-
-	blockquote {
-		@apply my-4;
-	}
-
-	a {
-		@apply border-b border-dotted border-blue no-underline hover:text-blue;
-	}
-
-	sup a {
-		@apply border-none text-blue;
-	}
-
-	strong,
-	b {
-		@apply font-semibold;
-	}
+    .wp-block-columns {
+        @apply gap-7;
+    }
 }
 
-/* Base text defaults. WordPress maps the `body` selector to
-   .editor-styles-wrapper when loading this via add_editor_style(). */
-body {
-	@apply font-sans text-base text-black;
-}
-
-/* Wide alignment preview (the SvelteKit frontend owns the rendered width). */
 .alignwide {
-	@apply max-w-[1100px] mx-auto;
+    @apply max-w-[1300px];
 }
 
-/* Keep the post title compact in the editor (it isn't rendered on the front
-   end — the frontend uses its own heading styles). */
-h1.wp-block-post-title {
-	@apply text-base text-left mb-8;
+/* Reflect a core/group's "Minimum height" and "Content alignment" settings in
+   the editor canvas so the section matches the front end while authoring. These
+   classes are added to the group's block wrapper by the editor.BlockListBlock
+   filter in editor.js. Auto-scoped under .editor-styles-wrapper. */
+.editor-min-screen {
+    min-height: 100vh;
+}
+.editor-min-half {
+    min-height: 50vh;
+}
+/* Content alignment only matters when the section has extra vertical space, so
+   the min-height wrappers become flex columns. Centered by default (matching
+   the front end); the align classes override the vertical distribution. */
+.editor-min-screen,
+.editor-min-half {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.editor-align-top {
+    justify-content: flex-start;
+}
+.editor-align-bottom {
+    justify-content: flex-end;
+}
+.editor-align-stretch {
+    justify-content: stretch;
+}
+.editor-align-stretch > * {
+    flex: 1 1 auto;
 }
 
-/* Visualise core/group min-height + sticky + content alignment while authoring.
-   Classes are added by the editor.BlockListBlock HOC in editor.js. Loaded into
-   the editor via add_editor_style() (app/setup.php), so WordPress scopes these
-   under .editor-styles-wrapper. Inside the modern editor iframe vh resolves to
-   the canvas height, so 100vh accurately previews a "full screen" section.
-   (On the front end these classes never appear, so the rules are inert.) */
-.wp-block-group.section-editor-min-screen,
-.wp-block-group.section-editor-min-half {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	grid-auto-rows: max-content;
-	align-content: center; /* default: centered */
+/* Spacing between top-level blocks in the canvas. */
+.wp-block-post-content > .wp-block {
+    @apply mb-7;
 }
-/* When min-height is set AND the group is NOT constrained ("Inner blocks use
-   content width" off), force children full width so the grid display doesn't
-   shrink them to content width. */
-.wp-block-group.section-editor-min-screen:not(.is-layout-constrained) > *,
-.wp-block-group.section-editor-min-half:not(.is-layout-constrained) > * {
-	max-width: none !important;
-	margin-left: 0 !important;
-	margin-right: 0 !important;
-}
-.wp-block-group.section-editor-min-screen.is-layout-constrained > *:not(.alignfull):not(.alignwide),
-.wp-block-group.section-editor-min-half.is-layout-constrained > *:not(.alignfull):not(.alignwide) {
-	width: 100%;
-}
-.wp-block-group.section-editor-min-screen {
-	min-height: 100vh;
-}
-.wp-block-group.section-editor-min-half {
-	min-height: 50vh;
-}
-/* Content alignment overrides (default is center). */
-.wp-block-group.section-editor-align-top {
-	align-content: start;
-}
-.wp-block-group.section-editor-align-bottom {
-	align-content: end;
-}
-.wp-block-group.section-editor-align-stretch {
-	/* Single-row stretch — child fills the section height. */
-	grid-auto-rows: 1fr;
-	align-content: stretch;
-}
-/* Cue for sticky-stack behaviour (don't actually position: sticky here — that
-   breaks editing inside the block). Subtle left accent only. */
-.wp-block-group.section-editor-sticky {
-	box-shadow: inset 3px 0 0 var(--wp--preset--color--primary, #2563eb);
+
+/* Hide the Post Excerpt block's "Add 'Read more' link text" affordance — the
+   excerpt is edited inline, the read-more link isn't used in this theme. */
+.wp-block-post-excerpt__more-link,
+.wp-block-post-excerpt__more-text {
+    display: none;
 }

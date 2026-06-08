@@ -110,3 +110,10 @@ add_action('rest_api_init', function () {
         return $result;
     }, 10, 3);
 });
+
+/**
+ * Load nhtbl project-specific backend code (custom blocks' GraphQL, portfolio
+ * authoring, survey, subpage nav, image colours, animated images). Kept in its
+ * own file so the template's setup.php / filters.php stay merge-clean.
+ */
+require_once __DIR__ . '/nhtbl.php';

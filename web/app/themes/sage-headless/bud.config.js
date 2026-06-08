@@ -16,14 +16,18 @@ export default async (app) => {
   app
     .entry('app', ['@scripts/app', '@styles/app'])
     .entry('editor', ['@scripts/editor', '@styles/editor'])
-    .assets(['images']);
+    .assets(['images'])
+    .copy({
+      from: 'block-assets',
+      to: 'block-assets',
+    })
 
   /**
    * Set public path
    *
    * @see {@link https://bud.js.org/reference/bud.setPublicPath}
    */
-  app.setPublicPath('/app/themes/sage/public/');
+  app.setPublicPath('/app/themes/sage/public/')
 
   /**
    * Development server settings
@@ -34,8 +38,8 @@ export default async (app) => {
    */
   app
     .setUrl('http://localhost:3000')
-    .setProxyUrl('http://example.test')
-    .watch(['resources/views', 'app']);
+    .setProxyUrl('http://nhtbl-backend-new.test')
+    .watch(['resources/views', 'app'])
 
   /**
    * Generate WordPress `theme.json`
@@ -50,14 +54,29 @@ export default async (app) => {
       background: {
         backgroundImage: true,
       },
+      border: {
+        color: true,
+        radius: true,
+        style: true,
+        width: true,
+      },
       color: {
         custom: false,
         customDuotone: false,
         customGradient: false,
         defaultDuotone: false,
         defaultGradients: false,
-        defaultPalette: false,
+        defaultPalette: true,
         duotone: [],
+      },
+      // Allow custom (hex) background/text colours on core/group only — the rest
+      // of the editor stays restricted to the brand palette above.
+      blocks: {
+        'core/group': {
+          color: {
+            custom: true,
+          },
+        },
       },
       custom: {
         spacing: {},
@@ -66,10 +85,6 @@ export default async (app) => {
           'line-height': {},
         },
       },
-      layout: {
-        contentSize: '768px',
-        wideSize: '1100px',
-      },
       spacing: {
         padding: true,
         units: ['px', '%', 'em', 'rem', 'vw', 'vh'],
@@ -77,8 +92,12 @@ export default async (app) => {
       typography: {
         customFontSize: false,
       },
+      layout: {
+        contentSize: '856px',
+        wideSize: '1300px',
+      },
     })
     .useTailwindColors()
+    .useTailwindFontSize()
     .useTailwindFontFamily()
-    .useTailwindFontSize();
-};
+}

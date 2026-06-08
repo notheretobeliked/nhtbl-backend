@@ -39,13 +39,16 @@ add_filter('register_block_type_args', function ($args, $name) {
     // and are exposed via GraphQL regardless of post type. The editor UI that
     // sets these lives in resources/scripts/editor.js.
     if ($name === 'core/group') {
-        $args['attributes']['sectionBehavior'] = ['type' => 'string', 'default' => 'normal'];
-        $args['attributes']['sectionMinHeight'] = ['type' => 'string', 'default' => 'auto'];
-        $args['attributes']['sectionContentAlign'] = ['type' => 'string', 'default' => 'center'];
-        $args['attributes']['sectionReveal'] = ['type' => 'string', 'default' => 'none'];
-        $args['attributes']['sectionRevealDirection'] = ['type' => 'string', 'default' => 'up'];
-        $args['attributes']['sectionRevealStagger'] = ['type' => 'number', 'default' => 60];
-        $args['attributes']['sectionParallax'] = ['type' => 'boolean', 'default' => false];
+        // nhtbl keeps the original (unprefixed) attribute names so existing saved
+        // content continues to resolve — the template's section* names would orphan
+        // the values already in the database. [nhtbl divergence from template]
+        $args['attributes']['behavior'] = ['type' => 'string', 'default' => 'normal'];
+        $args['attributes']['minHeight'] = ['type' => 'string', 'default' => 'auto'];
+        $args['attributes']['contentAlign'] = ['type' => 'string', 'default' => 'center'];
+        $args['attributes']['reveal'] = ['type' => 'string', 'default' => 'none'];
+        $args['attributes']['revealDirection'] = ['type' => 'string', 'default' => 'up'];
+        $args['attributes']['revealStagger'] = ['type' => 'number', 'default' => 60];
+        $args['attributes']['parallax'] = ['type' => 'boolean', 'default' => false];
     }
 
     return $args;
@@ -90,13 +93,13 @@ add_filter('graphql_coreGroupAttributes_fields', function ($fields) use ($nullab
     return unwrap_nonnull_fields(
         $fields,
         array_merge($nullable_attrs, [
-            'sectionBehavior',
-            'sectionMinHeight',
-            'sectionContentAlign',
-            'sectionReveal',
-            'sectionRevealDirection',
-            'sectionRevealStagger',
-            'sectionParallax',
+            'behavior',
+            'minHeight',
+            'contentAlign',
+            'reveal',
+            'revealDirection',
+            'revealStagger',
+            'parallax',
         ])
     );
 });

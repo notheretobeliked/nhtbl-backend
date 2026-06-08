@@ -1,9 +1,5 @@
 /**
- * Intentionally empty.
- *
- * The editor bundle is enqueued JS-only (`bundle('editor')->enqueueJs()` in
- * app/setup.php), so this stylesheet's compiled CSS is never loaded. All
- * editor styling lives in app.css instead, which IS loaded into the editor
- * via add_editor_style() (WordPress scopes it under .editor-styles-wrapper).
- * Add editor styling there, not here.
+ * Editor styles are consolidated into app.css, which is loaded into the block
+ * editor via add_editor_style() (see app/setup.php). This file is kept only so
+ * the bud `editor` bundle has a stylesheet entry; it is intentionally empty.
  */
