@@ -17,6 +17,12 @@ web/.htaccess
 # Logs
 *.log
 
+# macOS
+.DS_Store
+
+# Database dumps
+*.sql
+
 # Dotenv
 .env
 .env.*
