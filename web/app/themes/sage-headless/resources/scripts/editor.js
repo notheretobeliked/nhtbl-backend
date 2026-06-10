@@ -9,6 +9,11 @@ roots.register.filters('@scripts/filters');
  * Schema is registered globally so the attributes serialise in the markup
  * regardless of post type. The inspector UI below is gated to the project
  * (portfolio) CPT so authors of other post types don't see the panel.
+ *
+ * NOTE: nhtbl keeps the original (unprefixed) attribute names — behavior,
+ * minHeight, contentAlign, reveal, revealDirection, revealStagger, parallax —
+ * so existing saved content keeps resolving. These match app/blocks.php on the
+ * server (a documented divergence from the template's section* names).
  */
 wp.hooks.addFilter(
   'blocks.registerBlockType',

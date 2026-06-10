@@ -1,4 +1,6 @@
 @import url(https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,500;1,500&display=swap);
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
 @font-face {
     font-family: 'Avara';
     src:    url('../fonts/Avara-Bold.woff2') format('woff2'),
@@ -17,32 +19,130 @@
     font-display: swap;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-    @apply font-sans;
-}
+/**
+ * Editor + base typography.
+ *
+ * This stylesheet is loaded into the block editor via add_editor_style()
+ * (see app/setup.php) — WordPress auto-scopes these selectors under
+ * .editor-styles-wrapper.
+ *
+ * In @layer components so the rules beat Tailwind's preflight reset (which
+ * otherwise strips heading sizes + list markers, leaving the editor with no
+ * visual hierarchy). Sizes use the nhtbl Tailwind tokens (sm/base/lg/xl/2xl);
+ * authors can still override per-heading via the editor font-size picker
+ * (has-*-font-size, sized from the theme.json presets).
+ */
+@layer components {
+    body {
+        @apply font-sans;
+    }
 
-.main > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
-    @apply max-w-[856px] mx-auto;
+    p {
+        @apply font-sans text-base mb-3;
+    }
+
+    h1 {
+        @apply font-display text-2xl mb-4;
+    }
+    h2 {
+        @apply font-display text-xl mb-2;
+    }
+    h3 {
+        @apply font-display text-lg mb-3;
+    }
+    h4 {
+        @apply font-display text-base mb-2;
+    }
+    h5,
+    h6 {
+        @apply font-display text-sm mb-2;
+    }
+
+    /* Explicit font-size presets (picker) also use the display face. */
+    .has-lg-font-size,
+    .has-xl-font-size,
+    .has-2-xl-font-size {
+        @apply font-display;
+    }
+
+    h1.editor-post-title {
+        @apply text-xl mb-4;
+    }
+
+    /* Tailwind's preflight strips list markers; restore them in the canvas so
+       core/list blocks look like the front end while authoring. */
+    ul,
+    ol {
+        @apply font-sans text-base mb-3 pl-6;
+    }
+    ul {
+        @apply list-disc;
+    }
+    ol {
+        @apply list-decimal;
+    }
+    li {
+        @apply mb-1;
+    }
+
+    strong {
+        @apply font-normal;
+        background: url(../images/underline.svg) bottom repeat-x;
+    }
+
+    .wp-block-columns {
+        @apply gap-7;
+    }
 }
 
 .alignwide {
     @apply max-w-[1300px];
 }
 
-.has-lg-font-size,
-.has-xl-font-size,
-.has-2-xl-font-size,
-h2,
-h1 {
-    @apply font-display;
+/* Reflect a core/group's "Minimum height" and "Content alignment" settings in
+   the editor canvas so the section matches the front end while authoring. These
+   classes are added to the group's block wrapper by the editor.BlockListBlock
+   filter in editor.js. Auto-scoped under .editor-styles-wrapper. */
+.editor-min-screen {
+    min-height: 100vh;
+}
+.editor-min-half {
+    min-height: 50vh;
+}
+/* Content alignment only matters when the section has extra vertical space, so
+   the min-height wrappers become flex columns. Centered by default (matching
+   the front end); the align classes override the vertical distribution. */
+.editor-min-screen,
+.editor-min-half {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.editor-align-top {
+    justify-content: flex-start;
+}
+.editor-align-bottom {
+    justify-content: flex-end;
+}
+.editor-align-stretch {
+    justify-content: stretch;
+}
+.editor-align-stretch > * {
+    flex: 1 1 auto;
 }
 
-.wp-block-columns {
-    @apply gap-7;
+/* Spacing between top-level blocks in the canvas. */
+.wp-block-post-content > .wp-block {
+    @apply mb-7;
+}
+
+/* Hide the Post Excerpt block's "Add 'Read more' link text" affordance — the
+   excerpt is edited inline, the read-more link isn't used in this theme. */
+.wp-block-post-excerpt__more-link,
+.wp-block-post-excerpt__more-text {
+    display: none;
 }

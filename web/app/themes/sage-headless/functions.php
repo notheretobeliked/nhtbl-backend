@@ -22,25 +22,20 @@ require $composer;
 | Register The Bootloader
 |--------------------------------------------------------------------------
 |
-| The first thing we will do is schedule a new Acorn application container
+| The first thing we will do is schedule a new Acorn application instance
 | to boot when WordPress is finished loading the theme. The application
 | serves as the "glue" for all the components of Laravel and is
 | the IoC container for the system binding all of the various parts.
 |
 */
 
-if (! function_exists('\Roots\bootloader')) {
-    wp_die(
-        __('You need to install Acorn to use this theme.', 'sage'),
-        '',
-        [
-            'link_url' => 'https://roots.io/acorn/docs/installation/',
-            'link_text' => __('Acorn Docs: Installation', 'sage'),
-        ]
-    );
-}
+use Roots\Acorn\Application;
 
-\Roots\bootloader()->boot();
+Application::configure()
+    ->withProviders([
+        App\Providers\ThemeServiceProvider::class,
+    ])
+    ->boot();
 
 /*
 |--------------------------------------------------------------------------
@@ -54,7 +49,7 @@ if (! function_exists('\Roots\bootloader')) {
 |
 */
 
-collect(['preview-integration', 'setup', 'filters'])
+collect(['preview-integration', 'setup', 'filters', 'blocks'])
     ->each(function ($file) {
         if (! locate_template($file = "app/{$file}.php", true, true)) {
             wp_die(

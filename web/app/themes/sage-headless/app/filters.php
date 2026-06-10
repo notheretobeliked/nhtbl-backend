@@ -4,44 +4,7 @@
  * Theme filters.
  */
 
- namespace App;
-
- 
-/**
- * Disable WordPress.org API calls to prevent SSL errors
- */
-add_filter('pre_http_request', function ($preempt, $parsed_args, $url) {
-    // Short-circuit WordPress.org API calls (headless / Composer-managed site).
-    // Return a benign empty 200 — NOT a WP_Error: a WP_Error makes core retry
-    // over plain HTTP and then emit a "could not establish a secure connection
-    // to WordPress.org" notice, which breaks wp-cli. An empty body decodes to
-    // null, so update checks simply find nothing and exit cleanly.
-    if (strpos($url, 'wordpress.org') !== false ||
-        strpos($url, 's.w.org') !== false ||
-        strpos($url, 'wp.org') !== false) {
-        return [
-            'headers'  => [],
-            'body'     => '',
-            'response' => ['code' => 200, 'message' => 'OK'],
-            'cookies'  => [],
-            'filename' => null,
-        ];
-    }
-    return $preempt;
-}, 10, 3);
-
-/**
- * Disable automatic translation updates
- */
-add_filter('auto_update_translation', '__return_false');
-
-/**
- * Disable translation API calls
- */
-add_filter('translations_api', function() {
-    return new \WP_Error('translations_disabled', 'Translation API disabled to prevent SSL errors.');
-});
-
+namespace App;
 
 /**
  * Add "… Continued" to the excerpt.
@@ -53,140 +16,104 @@ add_filter('excerpt_more', function () {
 });
 
 /**
- * Add first image from image gallery as featured image
- * 
- * @return void
+ * Send webhook notification when content is published or saved.
+ *
+ * @param string $new_status New post status
+ * @param string $old_status Old post status
+ * @param \WP_Post $post The post object
  */
+add_action('transition_post_status', function ($new_status, $old_status, $post) {
+    // Only run on staging and production environments
+    $environment = env('WP_ENV');
+    if (!in_array($environment, ['staging', 'production'])) {
+        return;
+    }
 
-add_filter('acf/save_post', function ($post_id) {
-	$gallery = get_field('image_gallery', $post_id, false);
-	if (!empty($gallery) && !has_post_thumbnail($post_id)) {
-		$image_id = $gallery[0];
-		set_post_thumbnail($post_id, $image_id);
-	}
+    // Only fire for specific post types
+    $allowed_post_types = ['post', 'page'];
+    if (!in_array($post->post_type, $allowed_post_types)) {
+        return;
+    }
+
+    // Avoid triggering webhook by REST API (called by Gutenberg) to prevent duplicates
+    $rest = defined('REST_REQUEST') && REST_REQUEST;
+    
+    // Only trigger when transitioning from or to publish state, and not via REST
+    if (!$rest && ($new_status === 'publish' || $old_status === 'publish')) {
+        // Get the webhook URL from environment
+        $webhook_url = env('VERCEL_WEBHOOK');
+        if (!$webhook_url) {
+            return;
+        }
+
+        // Send the webhook notification
+        wp_remote_post($webhook_url, [
+            'timeout' => 5,
+            'blocking' => false, // Non-blocking so it doesn't slow down the save
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'body' => json_encode([
+                'event' => 'content_updated',
+                'post_id' => $post->ID,
+                'post_type' => $post->post_type,
+                'post_title' => $post->post_title,
+                'post_status' => $new_status,
+                'post_modified' => $post->post_modified,
+            ]),
+        ]);
+    }
+}, 10, 3);
+
+
+/**
+ * Enable Application Passwords in development (without HTTPS requirement)
+ */
+add_filter('wp_is_application_passwords_available', function ($available) {
+    // Force enable in development environment
+    if (env('WP_ENV') === 'development') {
+        return true;
+    }
+    return $available;
 });
 
 /**
- * Note: Key generation is handled by JavaScript in the admin UI (see below).
- * Keys are generated once when the user types and should never be auto-updated.
- * This ensures user control and prevents unexpected changes.
+ * Suppress EXIF read errors during REST API media uploads.
+ * Some images have corrupted/non-standard EXIF data that causes exif_read_data() to emit warnings.
+ * Acorn's HandleExceptions converts these warnings to ErrorExceptions, causing 500 errors.
+ * This sets up a custom error handler to suppress exif_read_data warnings during media uploads.
  */
+add_action('rest_api_init', function () {
+    // Only apply to media endpoint
+    add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+        $route = $request->get_route();
+
+        // Only intercept media uploads
+        if ($route === '/wp/v2/media' && $request->get_method() === 'POST') {
+            // Set custom error handler that suppresses EXIF warnings
+            set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+                // Suppress exif_read_data warnings
+                if (strpos($errstr, 'exif_read_data') !== false) {
+                    return true; // Suppress the error
+                }
+                // Let other errors through to normal handler
+                return false;
+            }, E_WARNING | E_NOTICE);
+
+            // Restore error handler after request completes
+            add_filter('rest_post_dispatch', function ($response) {
+                restore_error_handler();
+                return $response;
+            }, 10, 1);
+        }
+
+        return $result;
+    }, 10, 3);
+});
 
 /**
- * JavaScript-based approach for immediate feedback in the admin
+ * Load nhtbl project-specific backend code (custom blocks' GraphQL, portfolio
+ * authoring, survey, subpage nav, image colours, animated images). Kept in its
+ * own file so the template's setup.php / filters.php stay merge-clean.
  */
-add_action('acf/input/admin_footer', function() {
-    ?>
-    <script type="text/javascript">
-    (function($) {
-        if (typeof acf === 'undefined') return;
-        
-        
-        // Function to generate key from text
-        function generateKey(text, maxLength = 40) {
-            let key = text.toLowerCase();
-            key = key.replace(/[^a-z0-9\s]/g, '');
-            key = key.replace(/\s+/g, '_').trim();
-            
-            key = key.substring(0, maxLength);
-            key = key.replace(/_+$/, '');
-            
-            // Add simple hash for uniqueness
-            const hash = Math.random().toString(36).substring(2, 6);
-            key = key + '_' + hash;
-            
-            return key;
-        }
-        
-        // Debounce function to prevent excessive key generation
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-        
-        // Function to generate key for a field
-        function generateKeyForField($field, value, maxLength = 40, userTriggered = false) {
-            if (!value || value.length < 2) return; // Don't generate for very short values
-            
-            // Find the corresponding key field
-            let $keyField;
-            if ($field.is('[data-name="question_text"], [name*="question_text"]')) {
-                $keyField = $field.closest('.acf-row').find('input[data-name="question_key"]');
-                if (!$keyField.length) {
-                    $keyField = $field.closest('.acf-row').find('input[name*="question_key"]');
-                }
-            } else if ($field.is('[data-name="option_label"], [name*="option_label"]')) {
-                $keyField = $field.closest('.acf-row').find('input[data-name="option_value"]');
-                if (!$keyField.length) {
-                    $keyField = $field.closest('.acf-row').find('input[name*="option_value"]');
-                }
-                maxLength = 30; // Shorter for option values
-            }
-            
-            if ($keyField && $keyField.length) {
-                const currentValue = $keyField.val().trim();
-                // Only generate if field is completely empty AND this is user-triggered
-                if (!currentValue && userTriggered) {
-                    const key = generateKey(value, maxLength);
-                    $keyField.val(key);
-                }
-            }
-        }
-        
-        // Debounced version for input events
-        const debouncedGenerateKey = debounce(function($field, value, maxLength, userTriggered) {
-            generateKeyForField($field, value, maxLength, userTriggered);
-        }, 500);
-        
-        // Event handling for key generation
-        function attachHandlers() {
-            const questionSelectors = 'input[data-name="question_text"], textarea[data-name="question_text"], input[name*="question_text"], textarea[name*="question_text"]';
-            const optionSelectors = 'input[data-name="option_label"], input[name*="option_label"]';
-            
-            // Remove existing handlers
-            $(document).off('blur.survey-auto-key focusout.survey-auto-key input.survey-auto-key-debounced');
-            
-            // Primary trigger: on blur/focusout (when user leaves the field)
-            $(document).on('blur.survey-auto-key focusout.survey-auto-key', questionSelectors + ', ' + optionSelectors, function() {
-                const $this = $(this);
-                const value = $this.val().trim();
-                
-                generateKeyForField($this, value, 40, true); // userTriggered = true
-            });
-            
-            // Secondary trigger: debounced input for immediate feedback when pasting
-            $(document).on('input.survey-auto-key-debounced', questionSelectors + ', ' + optionSelectors, function() {
-                const $this = $(this);
-                const value = $this.val().trim();
-                
-                // Only trigger debounced generation if the value looks like it was pasted (longer than 10 chars)
-                if (value.length > 10) {
-                    debouncedGenerateKey($this, value, 40, true); // userTriggered = true
-                }
-            });
-        }
-        
-        // Initial attachment
-        attachHandlers();
-        
-        // Re-attach when ACF adds new rows
-        if (typeof acf !== 'undefined' && acf.addAction) {
-            acf.addAction('append_field', function(field) {
-                // Only re-attach if it's a survey-related field
-                if (field.get('name') === 'questions' || field.get('name') === 'options') {
-                    attachHandlers();
-                }
-            });
-        }
-        
-    })(jQuery);
-    </script>
-    <?php
-});
+require_once __DIR__ . '/nhtbl.php';

@@ -8,27 +8,18 @@ namespace App\Preview;
 add_post_type_support('page', 'revisions');
 
 /**
- * Get frontend URLs. The frontend host is read from the FRONTEND_URL env var
- * (set per environment in .env); the per-WP_ENV values below are only a
- * fallback if FRONTEND_URL is missing.
+ * Get frontend URLs based on FRONTEND_HOST environment variable
  */
 function get_frontend_urls() {
-    $frontend = env('FRONTEND_URL');
+    // Get FRONTEND_HOST from environment (set in .env)
+    $frontend_host = env('FRONTEND_HOST') ?: 'http://localhost:5173';
 
-    if (!$frontend) {
-        $env = defined('WP_ENV') ? WP_ENV : 'production';
-        $frontend = match ($env) {
-            'development' => 'http://localhost:5013',
-            'staging'     => 'https://stg.nhtbl.studio',
-            default       => 'https://www.notheretobeliked.studio',
-        };
-    }
-
-    $frontend = rtrim($frontend, '/');
+    // Remove trailing slash if present
+    $frontend_host = rtrim($frontend_host, '/');
 
     return [
-        'frontend'        => $frontend,
-        'allowed_origins' => [$frontend],
+        'frontend' => $frontend_host,
+        'allowed_origins' => [$frontend_host]
     ];
 }
 
@@ -110,17 +101,22 @@ function is_preview_authenticated() {
  * Enable CORS for SvelteKit frontend
  */
 add_action('init', function() {
+    // Skip if this is a REST API request (handled by rest_api_init hook)
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+
     $urls = get_frontend_urls();
     $allowed_origins = $urls['allowed_origins'];
-    
+
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    
+
     if (in_array($origin, $allowed_origins)) {
-        header("Access-Control-Allow-Origin: $origin");
-        header("Access-Control-Allow-Credentials: true");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce, X-Requested-With, X-Preview-Token");
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-        
+        header("Access-Control-Allow-Origin: $origin", true);
+        header("Access-Control-Allow-Credentials: true", true);
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce, X-Requested-With, X-Preview-Token", true);
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE", true);
+
         // Handle preflight requests
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             status_header(200);
@@ -138,16 +134,22 @@ add_action('rest_api_init', function() {
         $urls = get_frontend_urls();
         $allowed_origins = $urls['allowed_origins'];
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-        
+
+        // Always remove any existing CORS headers first
+        header_remove('Access-Control-Allow-Origin');
+        header_remove('Access-Control-Allow-Credentials');
+        header_remove('Access-Control-Allow-Headers');
+        header_remove('Access-Control-Allow-Methods');
+
         if (in_array($origin, $allowed_origins)) {
             header("Access-Control-Allow-Origin: $origin");
             header("Access-Control-Allow-Credentials: true");
             header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce, X-Requested-With, X-Preview-Token");
             header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
         }
-        
+
         return $value;
-    });
+    }, 999);
 });
 
 /**
@@ -157,25 +159,26 @@ add_filter('preview_post_link', function($preview_link, $post) {
     if (!is_user_logged_in()) {
         return $preview_link;
     }
-    
+
     $urls = get_frontend_urls();
     $frontend_url = $urls['frontend'];
-    
+
     // Generate preview token
     $token = generate_preview_token($post->ID);
-    
+
     if (!$token) {
+        error_log('preview_post_link: token generation failed');
         return $preview_link;
     }
     
-    // Create preview URL with token
+    // Create preview URL with token - routes to /preview in SvelteKit
     switch ($post->post_type) {
         case 'post':
-            return $frontend_url . '/preview?preview=true&p=' . $post->ID . '&token=' . $token;
+            return $frontend_url . '/preview?p=' . $post->ID . '&token=' . $token;
         case 'page':
-            return $frontend_url . '/preview?preview=true&page_id=' . $post->ID . '&token=' . $token;
+            return $frontend_url . '/preview?page_id=' . $post->ID . '&token=' . $token;
         default:
-            return $frontend_url . '/preview?preview=true&p=' . $post->ID . '&post_type=' . $post->post_type . '&token=' . $token;
+            return $frontend_url . '/preview?p=' . $post->ID . '&post_type=' . $post->post_type . '&token=' . $token;
     }
 }, 10, 2);
 
@@ -186,11 +189,16 @@ add_filter('page_link', function($link, $post_id, $sample) {
     if ($sample) { // This indicates it's a preview
         $urls = get_frontend_urls();
         $frontend_url = $urls['frontend'];
-        
+
         $token = generate_preview_token($post_id);
         if ($token) {
-            return $frontend_url . '/preview?preview=true&page_id=' . $post_id . '&token=' . $token;
+            return $frontend_url . '/preview?page_id=' . $post_id . '&token=' . $token;
         }
+    }
+    // Redirect "View Page" links in admin to frontend
+    if (is_admin() && !wp_doing_ajax()) {
+        $urls = get_frontend_urls();
+        return str_replace(home_url(), $urls['frontend'], $link);
     }
     return $link;
 }, 10, 3);
@@ -202,10 +210,10 @@ add_filter('get_sample_permalink', function($permalink, $post_id, $title, $name,
     if (is_admin()) {
         $urls = get_frontend_urls();
         $frontend_url = $urls['frontend'];
-        
+
         $token = generate_preview_token($post_id);
         if ($token && isset($permalink[0])) {
-            $preview_url = $frontend_url . '/preview?preview=true&';
+            $preview_url = $frontend_url . '/preview?';
             if ($post->post_type === 'page') {
                 $preview_url .= 'page_id=' . $post_id;
             } else {
@@ -259,32 +267,54 @@ add_action('rest_api_init', function() {
 });
 
 /**
- * Early authentication via determine_current_user. This is the canonical WP
- * auth hook (which WPGraphQL respects), so a token-authenticated preview request
- * is recognised as the editing user before WPGraphQL resolves — required for
- * single-node draft queries (e.g. nhtblProject(id:...)) to return content.
+ * Early authentication via determine_current_user filter
+ * This runs before most WordPress authentication checks
+ * Priority 20 is after default authentication but before most plugins
  */
 add_filter('determine_current_user', function($user_id) {
-    // Don't override an already-authenticated user.
+    // Only process if no user is logged in yet
     if ($user_id) {
         return $user_id;
     }
 
-    $token = $_SERVER['HTTP_X_PREVIEW_TOKEN'] ?? ($_GET['token'] ?? null);
-    if (!$token && function_exists('getallheaders')) {
-        $headers = getallheaders();
-        $token = $headers['X-Preview-Token'] ?? $headers['x-preview-token'] ?? null;
-    }
+    $token = get_preview_token_from_request();
 
     if ($token) {
         $token_data = get_transient('preview_token_' . $token);
+
         if ($token_data && isset($token_data['user_id'])) {
-            return (int) $token_data['user_id'];
+            return $token_data['user_id'];
         }
     }
 
     return $user_id;
 }, 20);
+
+/**
+ * Helper function to extract preview token from request
+ */
+function get_preview_token_from_request() {
+    $token = null;
+
+    // Check for token in headers (case-insensitive)
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        // Headers can be case-insensitive, check common variations
+        $token = $headers['X-Preview-Token'] ?? $headers['x-preview-token'] ?? $headers['X-PREVIEW-TOKEN'] ?? null;
+    }
+
+    // Fallback to $_SERVER (Apache/nginx normalize to HTTP_X_PREVIEW_TOKEN)
+    if (!$token && isset($_SERVER['HTTP_X_PREVIEW_TOKEN'])) {
+        $token = $_SERVER['HTTP_X_PREVIEW_TOKEN'];
+    }
+
+    // Check query parameter
+    if (!$token && isset($_GET['token'])) {
+        $token = $_GET['token'];
+    }
+
+    return $token;
+}
 
 /**
  * Add GraphQL authentication hook to validate preview tokens
@@ -406,46 +436,101 @@ add_filter('graphql_pre_resolve_field', function($result, $source, $args, $conte
 }, 10, 5);
 
 /**
- * Handle page and post queries with asPreview parameter
+ * Allow revisions to be accessed via GraphQL for preview-authenticated users.
+ * WPGraphQL's native asPreview loads the revision post, but the Post model's
+ * is_private() check may fail if token-based auth capabilities aren't fully
+ * initialized. This filter bypasses that check for revisions.
  */
-add_filter('graphql_pre_resolve_field', function($result, $source, $args, $context, $info) {
-    // Handle page queries with asPreview
-    if (($info->fieldName === 'page' || $info->fieldName === 'post') && 
-        isset($args['asPreview']) && $args['asPreview'] === true &&
-        is_preview_authenticated()) {
-        
-        // For asPreview queries, we need to modify the query to include all post statuses
-        // and also handle revisions properly
-        add_filter('posts_where', function($where) {
-            global $wpdb;
-            
-            // Allow all post statuses for preview queries
-            $where = preg_replace(
-                "/AND {$wpdb->posts}\.post_status = '[^']*'/",
-                "AND {$wpdb->posts}.post_status IN ('publish', 'private', 'draft', 'pending', 'future', 'inherit')",
-                $where
-            );
-            
-            return $where;
-        }, 999);
-        
-        // Also modify the posts_results to handle the case where we want the latest revision
-        // or the published post itself for preview
-        add_filter('posts_results', function($posts, $query) {
-            if (empty($posts) && isset($query->query_vars['p'])) {
-                // If no results found, try to get the published post
-                $post_id = $query->query_vars['p'];
-                $published_post = get_post($post_id);
-                if ($published_post && $published_post->post_status === 'publish') {
-                    return [$published_post];
-                }
-            }
-            return $posts;
-        }, 10, 2);
+add_filter('graphql_pre_model_data_is_private', function($is_private, $model_name, $data) {
+    if ('PostObject' === $model_name && is_preview_authenticated()) {
+        if (in_array($data->post_type, ['revision', 'attachment'], true)) {
+            return false;
+        }
     }
-    
-    return $result;
-}, 5, 5);
+    return $is_private;
+}, 10, 3);
+
+/**
+ * Fix ACF single image fields returning null in preview context.
+ *
+ * WPGraphQL's sanitize_post_stati() strips non-publish statuses when the
+ * current user can't edit_posts. Token-based preview auth doesn't set a
+ * real WordPress user (user remains 0), so attachments with 'inherit'
+ * status get filtered out. The Gallery resolver bypasses this by calling
+ * set_query_arg('post_status','any') after sanitization, but the Image
+ * resolver doesn't. This filter runs after sanitization and restores
+ * 'any' status for attachment queries during preview.
+ */
+add_filter('graphql_connection_query_args', function($query_args) {
+    if (
+        is_preview_authenticated()
+        && isset($query_args['post_type'])
+        && $query_args['post_type'] === 'attachment'
+    ) {
+        $query_args['post_status'] = 'any';
+    }
+    return $query_args;
+}, 10, 5);
+
+/**
+ * Redirect public (non-admin, non-API) requests to the frontend.
+ */
+add_action('template_redirect', function() {
+    // Don't redirect admin, AJAX, REST API, GraphQL, or cron requests
+    if (is_admin() || wp_doing_ajax() || wp_doing_cron()) {
+        return;
+    }
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+    // Don't redirect GraphQL or REST API endpoints
+    if (strpos($_SERVER['REQUEST_URI'], '/graphql') !== false) {
+        return;
+    }
+    if (strpos($_SERVER['REQUEST_URI'], '/wp-json/') !== false) {
+        return;
+    }
+    // Don't redirect static assets: uploads / plugin / theme files under /app/,
+    // WordPress core under /wp/, or anything with a static file extension. These
+    // are served by the webserver; a missing one should 404, not 301 to the
+    // frontend host (which has no such asset). [backport to template]
+    $req = $_SERVER['REQUEST_URI'] ?? '';
+    if (
+        strpos($req, '/app/') !== false
+        || strpos($req, '/wp/') === 0
+        || preg_match('#\.(webp|avif|png|jpe?g|gif|svg|ico|css|js|mjs|woff2?|ttf|otf|eot|map|pdf|zip|mp4|webm|txt|xml)(\?|$)#i', $req)
+    ) {
+        return;
+    }
+    // Don't redirect robots.txt, sitemaps, or feeds
+    if (is_robots() || is_feed()) {
+        return;
+    }
+
+    $urls = get_frontend_urls();
+    $frontend_url = $urls['frontend'];
+    $path = wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+
+    // Strip the /wp prefix if present (Bedrock structure)
+    $wp_base = wp_parse_url(home_url(), PHP_URL_PATH) ?: '';
+    if ($wp_base && strpos($path, $wp_base) === 0) {
+        $path = substr($path, strlen($wp_base)) ?: '/';
+    }
+
+    wp_redirect($frontend_url . $path, 301);
+    exit;
+});
+
+/**
+ * Modify "View" links for custom post types in admin to point to frontend
+ */
+add_filter('post_type_link', function($permalink, $post) {
+    if (is_admin() && !wp_doing_ajax()) {
+        $urls = get_frontend_urls();
+        return str_replace(home_url(), $urls['frontend'], $permalink);
+    }
+    return $permalink;
+}, 10, 2);
 
 /**
  * Add a custom REST endpoint for auth checking (optional, for debugging)
@@ -568,63 +653,11 @@ add_filter('post_link', function($permalink, $post) {
 }, 10, 2);
 
 /**
- * Modify "View" links for custom post types (e.g. Portfolio) in admin to point
- * to the frontend.
- */
-add_filter('post_type_link', function($permalink, $post) {
-    if (is_admin() && !wp_doing_ajax()) {
-        $urls = get_frontend_urls();
-        return str_replace(home_url(), $urls['frontend'], $permalink);
-    }
-    return $permalink;
-}, 10, 2);
-
-/**
- * Forward all front-of-site backend requests to the frontend. Admin, AJAX,
- * cron, REST, GraphQL, previews, robots and feeds are left untouched.
- */
-add_action('template_redirect', function() {
-    if (is_admin() || wp_doing_ajax() || wp_doing_cron() || is_preview()) {
-        return;
-    }
-    if (defined('REST_REQUEST') && REST_REQUEST) {
-        return;
-    }
-
-    $request_uri = $_SERVER['REQUEST_URI'] ?? '';
-    if (strpos($request_uri, '/graphql') !== false || strpos($request_uri, '/wp-json/') !== false) {
-        return;
-    }
-    if (is_robots() || is_feed()) {
-        return;
-    }
-
-    $urls = get_frontend_urls();
-    $path = wp_parse_url($request_uri ?: '/', PHP_URL_PATH) ?: '/';
-
-    // Never redirect backend static assets — Bedrock content (uploads, plugins,
-    // themes under /app/) and WP core (/wp/) must be served by the backend, not
-    // bounced to the frontend (this was breaking /app/uploads images).
-    if (preg_match('#^/(app|wp)/#', $path)) {
-        return;
-    }
-
-    // Strip the /wp prefix if present (Bedrock structure).
-    $wp_base = wp_parse_url(home_url(), PHP_URL_PATH) ?: '';
-    if ($wp_base && strpos($path, $wp_base) === 0) {
-        $path = substr($path, strlen($wp_base)) ?: '/';
-    }
-
-    wp_redirect($urls['frontend'] . $path, 301);
-    exit;
-});
-
-/**
  * Allow GraphQL to query posts by ID regardless of status for authenticated users
  */
 add_filter('graphql_post_object_connection_query_args', function($query_args, $source, $args, $context, $info) {
     if (is_preview_authenticated()) {
-        $query_args['post_status'] = ['publish', 'private', 'draft', 'pending', 'future'];
+        $query_args['post_status'] = ['publish', 'private', 'draft', 'pending', 'future', 'inherit'];
     }
     return $query_args;
 }, 10, 5);
