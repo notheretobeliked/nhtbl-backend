@@ -32,6 +32,7 @@ function revalidate_paths(array $paths): void
     $token    = env('VERCEL_ISR_TOKEN');
 
     if (!$frontend || !$token) {
+        error_log('[nhtbl revalidate] skipped — FRONTEND_HOST or VERCEL_ISR_TOKEN missing');
         return;
     }
 
@@ -40,12 +41,26 @@ function revalidate_paths(array $paths): void
         return;
     }
 
-    wp_remote_post(rtrim($frontend, '/') . '/api/revalidate', [
-        'timeout'  => 5,
-        'blocking' => false, // don't block the editor save
+    // Runs on `shutdown` after fastcgi_finish_request(), so the editor has
+    // already got its response — blocking here costs the user nothing and,
+    // unlike a fire-and-forget request, guarantees the POST actually lands.
+    $response = wp_remote_post(rtrim($frontend, '/') . '/api/revalidate', [
+        'timeout'  => 15,
+        'blocking' => true,
         'headers'  => ['Content-Type' => 'application/json'],
         'body'     => wp_json_encode(['token' => $token, 'paths' => $paths]),
     ]);
+
+    if (is_wp_error($response)) {
+        error_log('[nhtbl revalidate] WP_Error: ' . $response->get_error_message());
+        return;
+    }
+
+    error_log(
+        '[nhtbl revalidate] ' . wp_remote_retrieve_response_code($response)
+        . ' paths=' . implode(',', $paths)
+        . ' body=' . substr((string) wp_remote_retrieve_body($response), 0, 300)
+    );
 }
 
 /**
@@ -55,10 +70,13 @@ function trigger_full_deploy(): void
 {
     $hook = env('VERCEL_WEBHOOK');
     if (!$hook) {
+        error_log('[nhtbl revalidate] full deploy skipped — VERCEL_WEBHOOK missing');
         return;
     }
 
-    wp_remote_post($hook, ['timeout' => 5, 'blocking' => false]);
+    $response = wp_remote_post($hook, ['timeout' => 15, 'blocking' => true]);
+    $code = is_wp_error($response) ? $response->get_error_message() : wp_remote_retrieve_response_code($response);
+    error_log('[nhtbl revalidate] full deploy -> ' . $code);
 }
 
 /**
