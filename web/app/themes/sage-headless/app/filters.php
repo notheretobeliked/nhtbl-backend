@@ -15,10 +15,6 @@ add_filter('excerpt_more', function () {
     return sprintf(' &hellip; <a href="%s">%s</a>', get_permalink(), __('Continued', 'sage'));
 });
 
-// Frontend cache invalidation (ISR revalidation + full-deploy hooks) lives in
-// app/revalidate.php.
-
-
 /**
  * Enable Application Passwords in development (without HTTPS requirement)
  */
