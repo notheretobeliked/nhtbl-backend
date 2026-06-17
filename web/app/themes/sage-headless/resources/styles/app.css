@@ -99,6 +99,10 @@
     }
 }
 
+.editor-visual-editor__post-title-wrapper h1 {
+    @apply font-sans text-base;
+}
+
 .alignwide {
     @apply max-w-[1300px];
 }

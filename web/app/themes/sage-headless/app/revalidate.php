@@ -112,9 +112,26 @@ function revalidation_paths_for(\WP_Post $post): array
     return $paths;
 }
 
+/*
+|--------------------------------------------------------------------------
+| Deferred dispatch
+|--------------------------------------------------------------------------
+|
+| The hooks below only *collect* what changed during the save — they do no
+| HTTP or expensive lookups. The actual scan + outgoing requests run on
+| `shutdown`, after the response is flushed to the editor, so saving stays
+| fast no matter how many paths are involved or how slow the frontend is.
+*/
+
+/** @var array<int,\WP_Post> Posts to revalidate this request (deduped by ID). */
+$GLOBALS['nhtbl_revalidate_posts'] = [];
+
+/** @var bool Whether a full frontend rebuild is needed this request. */
+$GLOBALS['nhtbl_full_deploy'] = false;
+
 /**
- * Revalidate affected paths whenever a post enters or leaves the published
- * state (publish / update / unpublish / trash).
+ * Queue affected posts whenever one enters or leaves the published state
+ * (publish / update / unpublish / trash).
  */
 add_action('transition_post_status', function ($new_status, $old_status, $post) {
     if (!revalidation_enabled() || !($post instanceof \WP_Post)) {
@@ -129,33 +146,58 @@ add_action('transition_post_status', function ($new_status, $old_status, $post) 
         return;
     }
 
-    // Only when the published state is involved on one side of the transition.
     if ($new_status !== 'publish' && $old_status !== 'publish') {
         return;
     }
 
-    revalidate_paths(revalidation_paths_for($post));
+    $GLOBALS['nhtbl_revalidate_posts'][$post->ID] = $post;
 }, 10, 3);
 
 /**
- * Nav menus render on every page (header/footer), so a menu change requires a
- * full rebuild rather than per-path revalidation.
+ * Nav menus render on every page (header/footer) → full rebuild.
  */
 add_action('wp_update_nav_menu', function () {
-    if (!revalidation_enabled()) {
-        return;
+    if (revalidation_enabled()) {
+        $GLOBALS['nhtbl_full_deploy'] = true;
     }
-
-    trigger_full_deploy();
 });
 
 /**
  * ACF options pages hold site-wide settings → full rebuild.
  */
 add_action('acf/save_post', function ($post_id) {
-    if ($post_id !== 'options' || !revalidation_enabled()) {
+    if ($post_id === 'options' && revalidation_enabled()) {
+        $GLOBALS['nhtbl_full_deploy'] = true;
+    }
+}, 20);
+
+/**
+ * Flush the response to the browser, then do the heavy work in the background.
+ * A full rebuild supersedes per-path revalidation.
+ */
+add_action('shutdown', function () {
+    $posts       = $GLOBALS['nhtbl_revalidate_posts'] ?? [];
+    $full_deploy = $GLOBALS['nhtbl_full_deploy'] ?? false;
+
+    if (!$full_deploy && empty($posts)) {
         return;
     }
 
-    trigger_full_deploy();
-}, 20);
+    // PHP-FPM: send the response now and keep running. Without it the client
+    // would still wait for the request below to finish.
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    }
+
+    if ($full_deploy) {
+        trigger_full_deploy();
+        return;
+    }
+
+    $paths = [];
+    foreach ($posts as $post) {
+        $paths = array_merge($paths, revalidation_paths_for($post));
+    }
+
+    revalidate_paths($paths);
+});
