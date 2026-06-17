@@ -22,6 +22,16 @@ function revalidation_enabled(): bool
 }
 
 /**
+ * TEMP diagnostic logger — writes to web/app/revalidate.log regardless of
+ * WP_DEBUG (production has it off, so error_log() goes to the FPM log). Remove
+ * once the revalidation loop is confirmed working.
+ */
+function revalidate_log(string $msg): void
+{
+    error_log('[nhtbl ' . gmdate('H:i:s') . '] ' . $msg . "\n", 3, WP_CONTENT_DIR . '/revalidate.log');
+}
+
+/**
  * POST a list of paths to the frontend's on-demand ISR revalidation endpoint.
  *
  * @param string[] $paths
@@ -32,14 +42,17 @@ function revalidate_paths(array $paths): void
     $token    = env('VERCEL_ISR_TOKEN');
 
     if (!$frontend || !$token) {
-        error_log('[nhtbl revalidate] skipped — FRONTEND_HOST or VERCEL_ISR_TOKEN missing');
+        revalidate_log('skipped — FRONTEND_HOST=' . var_export($frontend, true) . ' token set=' . var_export((bool) $token, true));
         return;
     }
 
     $paths = array_values(array_unique(array_filter($paths)));
     if (empty($paths)) {
+        revalidate_log('no paths to revalidate');
         return;
     }
+
+    revalidate_log('POST ' . rtrim($frontend, '/') . '/api/revalidate paths=' . implode(',', $paths));
 
     // Runs on `shutdown` after fastcgi_finish_request(), so the editor has
     // already got its response — blocking here costs the user nothing and,
@@ -52,13 +65,12 @@ function revalidate_paths(array $paths): void
     ]);
 
     if (is_wp_error($response)) {
-        error_log('[nhtbl revalidate] WP_Error: ' . $response->get_error_message());
+        revalidate_log('WP_Error: ' . $response->get_error_message());
         return;
     }
 
-    error_log(
-        '[nhtbl revalidate] ' . wp_remote_retrieve_response_code($response)
-        . ' paths=' . implode(',', $paths)
+    revalidate_log(
+        'response ' . wp_remote_retrieve_response_code($response)
         . ' body=' . substr((string) wp_remote_retrieve_body($response), 0, 300)
     );
 }
@@ -156,6 +168,8 @@ add_action('transition_post_status', function ($new_status, $old_status, $post) 
         return;
     }
 
+    revalidate_log("transition pt={$post->post_type} {$old_status}->{$new_status} rest=" . (defined('REST_REQUEST') && REST_REQUEST ? 1 : 0));
+
     if (wp_is_post_revision($post) || wp_is_post_autosave($post)) {
         return;
     }
@@ -169,6 +183,7 @@ add_action('transition_post_status', function ($new_status, $old_status, $post) 
     }
 
     $GLOBALS['nhtbl_revalidate_posts'][$post->ID] = $post;
+    revalidate_log("queued #{$post->ID} ({$post->post_type})");
 }, 10, 3);
 
 /**
@@ -200,6 +215,12 @@ add_action('shutdown', function () {
     if (!$full_deploy && empty($posts)) {
         return;
     }
+
+    revalidate_log(
+        'shutdown: queued=' . count($posts) . ' full=' . var_export($full_deploy, true)
+        . ' sapi=' . php_sapi_name()
+        . ' fastcgi=' . var_export(function_exists('fastcgi_finish_request'), true)
+    );
 
     // PHP-FPM: send the response now and keep running. Without it the client
     // would still wait for the request below to finish.
