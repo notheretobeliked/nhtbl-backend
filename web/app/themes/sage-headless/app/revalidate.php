@@ -18,7 +18,9 @@ namespace App;
  */
 function revalidation_enabled(): bool
 {
-    return in_array(env('WP_ENV'), ['staging', 'production'], true);
+    // TEMP: 'development' added to test the revalidation loop locally.
+    // Revert to ['staging', 'production'] once confirmed working.
+    return in_array(env('WP_ENV'), ['development', 'staging', 'production'], true);
 }
 
 /**
