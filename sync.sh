@@ -2,10 +2,10 @@
 # orignal from https://discourse.roots.io/t/leveraging-wp-cli-aliases-in-your-wordpress-development-workflow/8414/12?u=allurewebsolutions
 
 DEVDIR="web/app/uploads/"
-DEVSITE="nhtbl-backend.test"
+DEVSITE="http://nhtbl-backend.test"
 
 PRODDIR="cleavr@amna.nhtbl.studio:/home/cleavr/amna.nhtbl.studio/shared/uploads/"
-PRODSITE="amna.nhtbl.studio"
+PRODSITE="https://amna.nhtbl.studio"
 
 # Drop a .sql / .sql.gz / .tar.gz / .gz dump in here to import from a local file
 # instead of a live wp-cli export.

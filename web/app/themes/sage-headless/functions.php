@@ -49,7 +49,7 @@ Application::configure()
 |
 */
 
-collect(['preview-integration', 'setup', 'filters', 'blocks'])
+collect(['preview-integration', 'setup', 'filters', 'revalidate', 'blocks'])
     ->each(function ($file) {
         if (! locate_template($file = "app/{$file}.php", true, true)) {
             wp_die(

@@ -2,7 +2,7 @@ path: web/wp
 server:
   docroot: web
 
-@staging:
-  ssh: user@staging.example.com:/home/user/staging.example.com/current
+@prod:
+  ssh: cleavr@amna.nhtbl.studio:/home/cleavr/amna.nhtbl.studio/current
 
 @dev: ''
