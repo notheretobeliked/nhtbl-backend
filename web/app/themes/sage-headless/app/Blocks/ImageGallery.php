@@ -88,7 +88,7 @@ class ImageGallery extends Block
             ->addGallery('images', [
                 'label' => 'Images',
                 'min' => 1,
-                'max' => 10,
+                'max' => 30,
                 'return_format' => 'array',
                 'preview_size' => 'medium',
                 'mime_types' => 'jpg, jpeg, png, webp, avif, svg',
