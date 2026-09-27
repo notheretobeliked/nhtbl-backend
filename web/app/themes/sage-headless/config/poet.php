@@ -67,8 +67,12 @@ return [
             'enter_title_here' => 'Enter survey response',
             'menu_icon' => 'dashicons-feedback',
             'supports' => ['title', 'custom-fields'],
-            'show_in_rest' => true,
-            'public' => true,
+            // Submissions are private: out of the REST API, search and public
+            // queries. Created via the submitSurveyResponse mutation; read in wp-admin.
+            'show_in_rest' => false,
+            'public' => false,
+            'exclude_from_search' => true,
+            'show_in_nav_menus' => false,
             'show_ui' => true,
             'show_in_menu' => true,
             'show_in_admin_bar' => true,
