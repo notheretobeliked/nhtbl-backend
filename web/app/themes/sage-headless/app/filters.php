@@ -156,7 +156,10 @@ add_filter('doing_it_wrong_trigger_error', function ($trigger, $function_name) {
  */
 add_action('graphql_register_types', function () {
     register_graphql_field('ContentNode', 'noindex', [
-        'type' => ['non_null' => 'Boolean'],
+        // Nullable on purpose: ContentNode includes MediaItem, and a non-null field
+        // would make every hand-built MediaItem/ContentNode type in a frontend
+        // require it. The resolver always returns true/false.
+        'type' => 'Boolean',
         'description' => __('True when this item is set to be hidden from search engines (Yoast > Advanced), ignoring site-wide indexing settings.', 'sage'),
         'resolve' => function ($node) {
             return get_post_meta($node->databaseId, '_yoast_wpseo_meta-robots-noindex', true) === '1';
