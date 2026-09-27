@@ -518,6 +518,25 @@ add_action('template_redirect', function() {
         return;
     }
 
+    // Backend preview URLs (?page_id=123&preview=true, ?p=123&post_type=x&preview=true).
+    // The block editor links there instead of preview_post_link for content that
+    // has never been published; without this they'd fall through to the generic
+    // redirect below, which keeps only the path and lands on the frontend's "/".
+    // Send editors to the tokenised frontend preview, everyone else to log in.
+    if (isset($_GET['preview'])) {
+        $preview_post_id = absint($_GET['page_id'] ?? $_GET['p'] ?? $_GET['preview_id'] ?? 0);
+        if ($preview_post_id && get_post($preview_post_id)) {
+            if (!current_user_can('edit_post', $preview_post_id)) {
+                auth_redirect();
+            }
+            $preview_link = get_preview_post_link($preview_post_id);
+            if ($preview_link) {
+                wp_redirect($preview_link, 302);
+                exit;
+            }
+        }
+    }
+
     $urls = get_frontend_urls();
     $frontend_url = $urls['frontend'];
     $path = wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
