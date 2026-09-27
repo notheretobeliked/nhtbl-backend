@@ -446,9 +446,32 @@ add_filter('graphql_pre_model_data_is_private', function($is_private, $model_nam
         if (in_array($data->post_type, ['revision', 'attachment'], true)) {
             return false;
         }
+
+        // The post the preview token was issued for, whatever its status. Without
+        // this, never-published drafts (no autosave to fall back on) resolve to null
+        // because token auth doesn't leave a user WordPress will let read drafts.
+        // Scoped to that one post: a token can't be used to read other drafts.
+        $token_post_id = get_preview_token_post_id();
+        if ($token_post_id && (int) $data->ID === $token_post_id) {
+            return false;
+        }
     }
     return $is_private;
 }, 10, 3);
+
+/**
+ * The post ID a valid preview token (from the request) was generated for, or 0.
+ */
+function get_preview_token_post_id() {
+    $token = get_preview_token_from_request();
+    if (!$token) {
+        return 0;
+    }
+
+    $token_data = get_transient('preview_token_' . $token);
+
+    return is_array($token_data) && !empty($token_data['post_id']) ? (int) $token_data['post_id'] : 0;
+}
 
 /**
  * Fix ACF single image fields returning null in preview context.
