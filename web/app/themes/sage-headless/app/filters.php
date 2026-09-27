@@ -16,54 +16,67 @@ add_filter('excerpt_more', function () {
 });
 
 /**
- * Send webhook notification when content is published or saved.
+ * Rebuild the frontend when published content changes.
  *
- * @param string $new_status New post status
- * @param string $old_status Old post status
- * @param \WP_Post $post The post object
+ * Posts VERCEL_WEBHOOK (a Vercel Deploy Hook URL) on staging/production. Changes
+ * are debounced: the first change schedules a rebuild one minute out and later
+ * changes in that window ride along, so a burst of edits costs one deploy.
+ *
+ * Hooked on wp_after_insert_post, which fires for block-editor (REST) saves too,
+ * after meta is written. Covers every public post type; projects narrow or extend
+ * it with the `sage/frontend_rebuild_post_types` filter.
  */
-add_action('transition_post_status', function ($new_status, $old_status, $post) {
-    // Only run on staging and production environments
-    $environment = env('WP_ENV');
-    if (!in_array($environment, ['staging', 'production'])) {
+const FRONTEND_REBUILD_HOOK = 'sage_frontend_rebuild';
+const FRONTEND_REBUILD_DELAY = MINUTE_IN_SECONDS;
+
+add_action('wp_after_insert_post', function ($post_id, $post, $update, $post_before) {
+    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
         return;
     }
 
-    // Only fire for specific post types
-    $allowed_post_types = ['post', 'page'];
-    if (!in_array($post->post_type, $allowed_post_types)) {
+    $types = get_post_types(['public' => true]);
+    unset($types['attachment']);
+    $types = apply_filters('sage/frontend_rebuild_post_types', array_values($types));
+    if (!in_array($post->post_type, $types, true)) {
         return;
     }
 
-    // Avoid triggering webhook by REST API (called by Gutenberg) to prevent duplicates
-    $rest = defined('REST_REQUEST') && REST_REQUEST;
-    
-    // Only trigger when transitioning from or to publish state, and not via REST
-    if (!$rest && ($new_status === 'publish' || $old_status === 'publish')) {
-        // Get the webhook URL from environment
-        $webhook_url = env('VERCEL_WEBHOOK');
-        if (!$webhook_url) {
-            return;
-        }
-
-        // Send the webhook notification
-        wp_remote_post($webhook_url, [
-            'timeout' => 5,
-            'blocking' => false, // Non-blocking so it doesn't slow down the save
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
-            'body' => json_encode([
-                'event' => 'content_updated',
-                'post_id' => $post->ID,
-                'post_type' => $post->post_type,
-                'post_title' => $post->post_title,
-                'post_status' => $new_status,
-                'post_modified' => $post->post_modified,
-            ]),
-        ]);
+    // Only when the live site is affected: published, unpublished or trashed.
+    $was_published = $post_before && $post_before->post_status === 'publish';
+    if ($post->post_status !== 'publish' && !$was_published) {
+        return;
     }
-}, 10, 3);
+
+    schedule_frontend_rebuild();
+}, 10, 4);
+
+/**
+ * Queue a frontend rebuild (no-op outside staging/production or without a hook URL).
+ */
+function schedule_frontend_rebuild(): void
+{
+    if (!in_array(env('WP_ENV'), ['staging', 'production'], true) || !env('VERCEL_WEBHOOK')) {
+        return;
+    }
+
+    if (!wp_next_scheduled(FRONTEND_REBUILD_HOOK)) {
+        wp_schedule_single_event(time() + FRONTEND_REBUILD_DELAY, FRONTEND_REBUILD_HOOK);
+    }
+}
+
+add_action(FRONTEND_REBUILD_HOOK, function () {
+    $url = env('VERCEL_WEBHOOK');
+    if (!$url) {
+        return;
+    }
+
+    $response = wp_remote_post($url, ['timeout' => 10]);
+    if (is_wp_error($response) || wp_remote_retrieve_response_code($response) >= 300) {
+        error_log('Frontend rebuild webhook failed: ' . (is_wp_error($response)
+            ? $response->get_error_message()
+            : wp_remote_retrieve_response_code($response)));
+    }
+});
 
 
 /**
