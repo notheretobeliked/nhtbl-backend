@@ -7,8 +7,7 @@ roots.register.filters('@scripts/filters');
  * Extend core/group with section behaviour, reveal and parallax attributes.
  *
  * Schema is registered globally so the attributes serialise in the markup
- * regardless of post type. The inspector UI below is gated to the project
- * (portfolio) CPT so authors of other post types don't see the panel.
+ * regardless of post type, and the inspector UI below is shown for every post type.
  *
  * NOTE: nhtbl keeps the original (unprefixed) attribute names — behavior,
  * minHeight, contentAlign, reveal, revealDirection, revealStagger, parallax —
@@ -38,7 +37,7 @@ wp.hooks.addFilter(
 );
 
 /**
- * Section / reveal / parallax inspector panels on core/group, project CPT only.
+ * Section / reveal / parallax inspector panels on core/group, for every post type.
  */
 const groupInspector = wp.compose.createHigherOrderComponent(
   (BlockEdit) => (props) => {
@@ -46,15 +45,6 @@ const groupInspector = wp.compose.createHigherOrderComponent(
     const { Fragment } = wp.element;
 
     if (props.name !== 'core/group') {
-      return el(BlockEdit, props);
-    }
-
-    const postType = wp.data.useSelect(
-      (select) => select('core/editor')?.getCurrentPostType(),
-      [],
-    );
-
-    if (postType !== 'project') {
       return el(BlockEdit, props);
     }
 
@@ -161,7 +151,7 @@ wp.hooks.addFilter('editor.BlockEdit', 'nhtbl/group-inspector', groupInspector);
 
 /**
  * Reflect min-height / sticky cue on the editor's block wrapper while authoring
- * project items. Pure styling — does not affect saved markup.
+ * pages and projects. Pure styling — does not affect saved markup.
  */
 const groupEditorClasses = wp.compose.createHigherOrderComponent(
   (BlockListBlock) => (props) => {
