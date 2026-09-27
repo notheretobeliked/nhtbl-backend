@@ -96,3 +96,29 @@ add_filter('doing_it_wrong_trigger_error', function ($trigger, $function_name) {
 
     return $trigger;
 }, 10, 2);
+
+/**
+ * Expose the per-page "hide from search engines" choice as ContentNode.noindex.
+ *
+ * Editors set it in the Yoast panel (Advanced > "Allow search engines to show
+ * this content in search results?" = No), stored as _yoast_wpseo_meta-robots-noindex = 1.
+ * The frontend uses it to keep a page out of the sitemap and emit a robots
+ * noindex tag while still prerendering it (a "hidden" page).
+ *
+ * Deliberately NOT Yoast's seo.metaRobotsNoindex: that reports the effective value,
+ * which turns into "noindex" for every page when the backend itself discourages
+ * indexing (blog_public = 0, e.g. Bedrock's DISALLOW_INDEXING outside production, or
+ * a delisted headless backend) — which would hide the whole frontend.
+ */
+add_action('graphql_register_types', function () {
+    register_graphql_field('ContentNode', 'noindex', [
+        // Nullable on purpose: ContentNode includes MediaItem, and a non-null field
+        // would make every hand-built MediaItem/ContentNode type in a frontend
+        // require it. The resolver always returns true/false.
+        'type' => 'Boolean',
+        'description' => __('True when this item is set to be hidden from search engines (Yoast > Advanced), ignoring site-wide indexing settings.', 'sage'),
+        'resolve' => function ($node) {
+            return get_post_meta($node->databaseId, '_yoast_wpseo_meta-robots-noindex', true) === '1';
+        },
+    ]);
+});
