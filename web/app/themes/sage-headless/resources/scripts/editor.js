@@ -1,0 +1,305 @@
+/**
+ * @see {@link https://bud.js.org/extensions/bud-preset-wordpress/editor-integration/filters}
+ */
+roots.register.filters('@scripts/filters');
+
+/**
+ * Extend core/group with section behaviour, reveal and parallax attributes.
+ *
+ * Schema is registered globally so the attributes serialise in the markup
+ * regardless of post type. The inspector UI below is gated to the project
+ * (portfolio) CPT so authors of other post types don't see the panel.
+ *
+ * NOTE: nhtbl keeps the original (unprefixed) attribute names — behavior,
+ * minHeight, contentAlign, reveal, revealDirection, revealStagger, parallax —
+ * so existing saved content keeps resolving. These match app/blocks.php on the
+ * server (a documented divergence from the template's section* names).
+ */
+wp.hooks.addFilter(
+  'blocks.registerBlockType',
+  'nhtbl/group-extension-attributes',
+  (settings, name) => {
+    if (name !== 'core/group') return settings;
+
+    return {
+      ...settings,
+      attributes: {
+        ...settings.attributes,
+        behavior: { type: 'string', default: 'normal' },
+        minHeight: { type: 'string', default: 'auto' },
+        contentAlign: { type: 'string', default: 'center' },
+        reveal: { type: 'string', default: 'none' },
+        revealDirection: { type: 'string', default: 'up' },
+        revealStagger: { type: 'number', default: 60 },
+        parallax: { type: 'boolean', default: false },
+      },
+    };
+  },
+);
+
+/**
+ * Section / reveal / parallax inspector panels on core/group, project CPT only.
+ */
+const groupInspector = wp.compose.createHigherOrderComponent(
+  (BlockEdit) => (props) => {
+    const el = wp.element.createElement;
+    const { Fragment } = wp.element;
+
+    if (props.name !== 'core/group') {
+      return el(BlockEdit, props);
+    }
+
+    const postType = wp.data.useSelect(
+      (select) => select('core/editor')?.getCurrentPostType(),
+      [],
+    );
+
+    if (postType !== 'project') {
+      return el(BlockEdit, props);
+    }
+
+    const { attributes, setAttributes } = props;
+    const { InspectorControls } = wp.blockEditor;
+    const { PanelBody, SelectControl, RangeControl, ToggleControl } = wp.components;
+
+    return el(
+      Fragment,
+      null,
+      el(BlockEdit, props),
+      el(
+        InspectorControls,
+        null,
+        el(
+          PanelBody,
+          { title: 'Section behaviour', initialOpen: false },
+          el(SelectControl, {
+            label: 'Scroll behaviour',
+            help: 'Stick: pins to viewport; subsequent sections slide over it.',
+            value: attributes.behavior || 'normal',
+            options: [
+              { label: 'Normal', value: 'normal' },
+              { label: 'Sticky-stack', value: 'stick' },
+            ],
+            onChange: (value) => setAttributes({ behavior: value }),
+          }),
+          el(SelectControl, {
+            label: 'Minimum height',
+            value: attributes.minHeight || 'auto',
+            options: [
+              { label: 'Auto (content height)', value: 'auto' },
+              { label: 'Full screen (100vh)', value: 'screen' },
+              { label: 'Half screen (50vh)', value: 'half' },
+            ],
+            onChange: (value) => setAttributes({ minHeight: value }),
+          }),
+          el(SelectControl, {
+            label: 'Content alignment',
+            help: 'How content sits inside the section. Stretch makes children fill the height (e.g. a column with an image gallery).',
+            value: attributes.contentAlign || 'center',
+            options: [
+              { label: 'Center (default)', value: 'center' },
+              { label: 'Top', value: 'top' },
+              { label: 'Bottom', value: 'bottom' },
+              { label: 'Stretch (fill height)', value: 'stretch' },
+            ],
+            onChange: (value) => setAttributes({ contentAlign: value }),
+          }),
+        ),
+        el(
+          PanelBody,
+          { title: 'Reveal animation', initialOpen: false },
+          el(SelectControl, {
+            label: 'Trigger',
+            value: attributes.reveal || 'none',
+            options: [
+              { label: 'None', value: 'none' },
+              { label: 'Scroll-locked (reveals as you scroll)', value: 'scroll-locked' },
+              { label: 'Once on enter (plays once in view)', value: 'once-on-enter' },
+            ],
+            onChange: (value) => setAttributes({ reveal: value }),
+          }),
+          attributes.reveal && attributes.reveal !== 'none'
+            ? el(SelectControl, {
+                label: 'Direction',
+                value: attributes.revealDirection || 'up',
+                options: [
+                  { label: 'Slide up + fade', value: 'up' },
+                  { label: 'Slide from left + fade', value: 'from-left' },
+                  { label: 'Fade only', value: 'fade-only' },
+                ],
+                onChange: (value) => setAttributes({ revealDirection: value }),
+              })
+            : null,
+          attributes.reveal && attributes.reveal !== 'none'
+            ? el(RangeControl, {
+                label: 'Per-word delay (ms)',
+                value: attributes.revealStagger ?? 60,
+                onChange: (value) => setAttributes({ revealStagger: value }),
+                min: 0,
+                max: 300,
+                step: 10,
+              })
+            : null,
+        ),
+        el(
+          PanelBody,
+          { title: 'Parallax', initialOpen: false },
+          el(ToggleControl, {
+            label: 'Enable parallax scroll',
+            help: 'Each direct child of this group moves at a different scroll speed. A Columns block is treated as transparent — each Column inside becomes one parallax unit instead. Wrap multiple blocks in a sub-group to bundle them as one unit.',
+            checked: !!attributes.parallax,
+            onChange: (value) => setAttributes({ parallax: !!value }),
+          }),
+        ),
+      ),
+    );
+  },
+  'groupInspector',
+);
+
+wp.hooks.addFilter('editor.BlockEdit', 'nhtbl/group-inspector', groupInspector);
+
+/**
+ * Reflect min-height / sticky cue on the editor's block wrapper while authoring
+ * project items. Pure styling — does not affect saved markup.
+ */
+const groupEditorClasses = wp.compose.createHigherOrderComponent(
+  (BlockListBlock) => (props) => {
+    const el = wp.element.createElement;
+    if (props.name !== 'core/group') return el(BlockListBlock, props);
+
+    const { attributes } = props;
+    const extra = [];
+    if (attributes.minHeight === 'screen') extra.push('editor-min-screen');
+    else if (attributes.minHeight === 'half') extra.push('editor-min-half');
+    if (attributes.behavior === 'stick') extra.push('editor-sticky');
+    if (attributes.contentAlign && attributes.contentAlign !== 'center') {
+      extra.push(`editor-align-${attributes.contentAlign}`);
+    }
+
+    if (!extra.length) return el(BlockListBlock, props);
+
+    return el(BlockListBlock, {
+      ...props,
+      className: `${props.className || ''} ${extra.join(' ')}`.trim(),
+    });
+  },
+  'groupEditorClasses',
+);
+
+wp.hooks.addFilter('editor.BlockListBlock', 'nhtbl/group-editor-classes', groupEditorClasses);
+
+/**
+ * Insert block patterns "detached".
+ *
+ * WordPress tags inserted (unsynced) patterns with metadata.patternName, which
+ * puts them in content-only editing — you can change text/images but not
+ * alignment or block settings, and can't add/remove/reorder inner blocks. We
+ * strip that binding as soon as it appears, so inserted patterns are immediately
+ * full, plain, editable blocks (no manual "Detach" needed).
+ */
+wp.domReady(() => {
+  const STORE = 'core/block-editor';
+  const { select, dispatch, subscribe } = wp.data;
+
+  // Collect every block (at any depth) that still carries a patternName binding.
+  const collectBound = (blocks, acc) => {
+    for (const block of blocks) {
+      if (block?.attributes?.metadata?.patternName) {
+        acc.push(block);
+      }
+      if (block.innerBlocks && block.innerBlocks.length) {
+        collectBound(block.innerBlocks, acc);
+      }
+    }
+    return acc;
+  };
+
+  let working = false;
+  subscribe(() => {
+    if (working) return;
+    const editor = select(STORE);
+    if (!editor || !editor.getBlocks) return;
+
+    const bound = collectBound(editor.getBlocks(), []);
+    if (!bound.length) return;
+
+    working = true;
+    const { updateBlockAttributes } = dispatch(STORE);
+    bound.forEach((block) => {
+      const { patternName, ...rest } = block.attributes.metadata;
+      updateBlockAttributes(block.clientId, {
+        metadata: Object.keys(rest).length ? rest : undefined,
+      });
+    });
+    working = false;
+  }, STORE);
+});
+
+/**
+ * Mirror the page's chosen background colour (the `background_colour` ACF field
+ * in the side panel) onto the editor canvas, so the editor previews the real
+ * page background. Updates live as the field changes.
+ */
+const BG_PALETTE = {
+  black: '#000000',
+  white: '#FFFFFF',
+  'nhtbl-grey-base': '#D9D9D9',
+  'nhtbl-green-base': '#E0FF00',
+  'nhtbl-purple-base': '#D59CE5',
+  'nhtbl-purple-light': '#E4D5E8',
+};
+
+let currentEditorBg = '#FFFFFF';
+
+// The canvas can live in the main document or inside the editor iframe. Newer
+// WP iframes the canvas (and the iframe name varies), so check every same-origin
+// iframe, not just one by name.
+function editorCanvasNodes() {
+  const nodes = Array.from(document.querySelectorAll('.editor-styles-wrapper'));
+  document.querySelectorAll('iframe').forEach((frame) => {
+    try {
+      const doc = frame.contentDocument;
+      if (doc) nodes.push(...doc.querySelectorAll('.editor-styles-wrapper'));
+    } catch (e) {
+      /* cross-origin iframe — ignore */
+    }
+  });
+  return nodes;
+}
+
+function applyEditorBg(color) {
+  editorCanvasNodes().forEach((el) => {
+    if (el.style.backgroundColor !== color) el.style.backgroundColor = color;
+  });
+}
+
+function readBgSlug() {
+  const field = document.querySelector('.acf-field[data-name="background_colour"]');
+  const select = field && field.querySelector('select');
+  return (select && select.value) || 'white';
+}
+
+function syncEditorBg() {
+  currentEditorBg = BG_PALETTE[readBgSlug()] || '#FFFFFF';
+  applyEditorBg(currentEditorBg);
+}
+
+// React to the field changing (ACF select2 fires a native change on its select).
+document.addEventListener('change', (event) => {
+  if (event.target.closest?.('.acf-field[data-name="background_colour"]')) {
+    syncEditorBg();
+  }
+});
+
+// Initial value once ACF is ready, and re-sync as the editor/canvas re-renders
+// (the iframe may mount after this runs — re-reading + applying handles that).
+if (window.acf) window.acf.addAction('ready', syncEditorBg);
+if (window.wp?.data?.subscribe) {
+  window.wp.data.subscribe(syncEditorBg);
+}
+
+/**
+ * @see {@link https://webpack.js.org/api/hot-module-replacement/}
+ */
+if (import.meta.webpackHot) import.meta.webpackHot.accept(console.error);

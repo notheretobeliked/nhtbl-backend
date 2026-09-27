@@ -1,0 +1,5 @@
+/**
+ * Editor styles are consolidated into app.css, which is loaded into the block
+ * editor via add_editor_style() (see app/setup.php). This file is kept only so
+ * the bud `editor` bundle has a stylesheet entry; it is intentionally empty.
+ */
