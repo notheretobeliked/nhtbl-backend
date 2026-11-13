@@ -15,7 +15,13 @@
 @endphp
 
 <div {{ $attributes }} class="acf-image-gallery {{ $widthClass }} {{ $heightClass }}">
-    <div class="relative {{ $aspectClass }} bg-gray-100 overflow-hidden">
+    @php
+        $bgHex = [
+            'nhtbl-grey-base' => '#d9d9d9', 'white' => '#ffffff', 'black' => '#000000',
+            'nhtbl-green-base' => '#e0ff00', 'nhtbl-purple-base' => '#d59ce5', 'nhtbl-purple-light' => '#e4d5e8',
+        ][$image_background_colour] ?? '#d9d9d9';
+    @endphp
+    <div class="relative {{ $aspectClass }} overflow-hidden" style="background-color: {{ $image_background ? $bgHex : '#f3f4f6' }}">
         @if ($first)
             <img
                 src="{{ $first['sizes']['large'] ?? $first['url'] ?? '' }}"

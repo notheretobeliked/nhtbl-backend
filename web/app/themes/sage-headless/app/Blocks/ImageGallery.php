@@ -78,6 +78,8 @@ class ImageGallery extends Block
             'caption' => get_field('caption') ?: '',
             'full_width' => (bool) get_field('full_width'),
             'full_height' => (bool) get_field('full_height'),
+            'image_background' => (bool) get_field('image_background'),
+            'image_background_colour' => get_field('image_background_colour') ?: 'nhtbl-grey-base',
         ];
     }
 
@@ -129,7 +131,29 @@ class ImageGallery extends Block
                 'instructions' => 'Stretch the gallery to fill the parent\'s height (useful inside a Section group).',
                 'default_value' => 0,
                 'ui' => 1,
-            ]);
+            ])
+            ->addTrueFalse('image_background', [
+                'label' => 'Background behind images',
+                'instructions' => 'Turn on for images with transparency (PNG logos, icons). Each image gets a solid background, so the previous image doesn\'t show through while the next one fades in.',
+                'default_value' => 0,
+                'ui' => 1,
+            ])
+            ->addSelect('image_background_colour', [
+                'label' => 'Image background colour',
+                'instructions' => 'Usually the same colour as the section the gallery sits in.',
+                'choices' => [
+                    'nhtbl-grey-base' => 'Grey',
+                    'white' => 'White',
+                    'black' => 'Black',
+                    'nhtbl-green-base' => 'Green',
+                    'nhtbl-purple-base' => 'Purple',
+                    'nhtbl-purple-light' => 'Light purple',
+                ],
+                'default_value' => 'nhtbl-grey-base',
+                'allow_null' => 0,
+                'return_format' => 'value',
+            ])
+                ->conditional('image_background', '==', 1);
 
         return $fields->build();
     }
