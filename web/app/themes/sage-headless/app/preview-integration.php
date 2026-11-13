@@ -496,6 +496,46 @@ add_filter('graphql_connection_query_args', function($query_args) {
 }, 10, 5);
 
 /**
+ * Backend preview URLs (?page_id=123&preview=true, ?p=123&post_type=x&preview=true).
+ *
+ * The block editor links there instead of preview_post_link for content that has
+ * never been published, and the frontend sends editors there when their token is
+ * missing or has expired. Send editors to the tokenised frontend preview, everyone
+ * else to log in.
+ *
+ * Priority 1: WordPress's redirect_canonical runs on this hook at 10 and rewrites
+ * ?page_id=123&preview=true to the page's permalink, dropping both the ID and the
+ * preview flag, so a published page would land on the live frontend page instead.
+ */
+add_action('template_redirect', function() {
+    if (!isset($_GET['preview']) || is_admin() || wp_doing_ajax() || wp_doing_cron()) {
+        return;
+    }
+    $req = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($req, '/graphql') !== false || strpos($req, '/wp-json/') !== false) {
+        return;
+    }
+
+    $preview_post_id = absint($_GET['page_id'] ?? $_GET['p'] ?? $_GET['preview_id'] ?? 0);
+    // A permalink with ?preview=true carries no ID; take it from the query.
+    if (!$preview_post_id && is_singular()) {
+        $preview_post_id = get_queried_object_id();
+    }
+    if (!$preview_post_id || !get_post($preview_post_id)) {
+        return;
+    }
+    if (!current_user_can('edit_post', $preview_post_id)) {
+        auth_redirect();
+    }
+    $preview_link = get_preview_post_link($preview_post_id);
+    if ($preview_link && strpos($preview_link, 'token=') !== false) {
+        nocache_headers();
+        wp_redirect($preview_link, 302);
+        exit;
+    }
+}, 1);
+
+/**
  * Redirect public (non-admin, non-API) requests to the frontend.
  */
 add_action('template_redirect', function() {
@@ -528,25 +568,6 @@ add_action('template_redirect', function() {
     // Don't redirect robots.txt, sitemaps, or feeds
     if (is_robots() || is_feed()) {
         return;
-    }
-
-    // Backend preview URLs (?page_id=123&preview=true, ?p=123&post_type=x&preview=true).
-    // The block editor links there instead of preview_post_link for content that
-    // has never been published; without this they'd fall through to the generic
-    // redirect below, which keeps only the path and lands on the frontend's "/".
-    // Send editors to the tokenised frontend preview, everyone else to log in.
-    if (isset($_GET['preview'])) {
-        $preview_post_id = absint($_GET['page_id'] ?? $_GET['p'] ?? $_GET['preview_id'] ?? 0);
-        if ($preview_post_id && get_post($preview_post_id)) {
-            if (!current_user_can('edit_post', $preview_post_id)) {
-                auth_redirect();
-            }
-            $preview_link = get_preview_post_link($preview_post_id);
-            if ($preview_link) {
-                wp_redirect($preview_link, 302);
-                exit;
-            }
-        }
     }
 
     $urls = get_frontend_urls();
