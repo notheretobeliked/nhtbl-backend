@@ -111,8 +111,12 @@ return [
     'taxonomy' => [
         'client' => [
             'links' => ['project'],
-            'singular' => 'Client',
-            'plural'   => 'Clients',
+            # Who the work was with: a paying client, or the host of a talk or show.
+            # Shown on the site as "With"; the internal name stays `client`.
+            'labels' => [
+                'singular' => 'Client or host',
+                'plural'   => 'Clients and hosts',
+            ],
             'create_new' => true,
             'show_ui'  => true,
             'exclusive' => false, # Custom arg  // true means: just one can be selected      
@@ -143,6 +147,24 @@ return [
                 'with_front' => false,
                 'hierarchical' => true,
             ],
+        ],
+        // What kind of entry this is (Workshop, Talk or teaching, Exhibition…).
+        // Optional: full portfolio projects don't need one. Entries with a type
+        // and no content show as a plain row in the Work list (see hasContent).
+        'project_type' => [
+            'links' => ['project'],
+            'singular' => 'Type',
+            'plural'   => 'Types',
+            'create_new' => true,
+            'hierarchical' => true,
+            'show_ui'  => true,
+            'exclusive' => false,
+            'show_in_rest' => true,
+            'has_archive' => false,
+            'publicly_queryable' => false,
+            'show_in_graphql' => true,
+            'graphql_single_name' => 'nhtbl_type',
+            'graphql_plural_name' => 'nhtbl_types',
         ],
     ],
 

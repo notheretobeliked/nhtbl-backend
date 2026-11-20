@@ -35,6 +35,7 @@ add_filter('allowed_block_types_all', function ($allowed) {
         'acf/service-push',
         'acf/subpage-navigation',
         'acf/survey-block',
+        'acf/image-strip',
         // seeded into the project CPT editor template / used in content
         'core/post-excerpt',
     ];
@@ -76,6 +77,7 @@ add_action('graphql_register_types', function () {
         'AcfSlideshowAttributes',
         'AcfSlideAttributes',
         'AcfSubpageNavigationAttributes',
+        'AcfImageStripAttributes',
     ];
     foreach ($acf_attr_types as $type) {
         add_filter("graphql_{$type}_fields", function ($fields) use ($shared) {
@@ -589,3 +591,75 @@ add_action('graphql_register_types', function () {
         },
     ]);
 });
+
+/**
+ * Nhtbl_project.hasContent — whether a project has anything beyond its excerpt.
+ *
+ * Entries without content (a talk, a workshop, an advisory role…) are listed on
+ * the Work page as a plain row with no page of their own. A new project is never
+ * literally empty — the editor template above seeds an excerpt block, a group
+ * with an empty image and an empty paragraph — so "content" means real text or
+ * media somewhere other than the excerpt block.
+ */
+add_action('graphql_register_types', function () {
+    $hasContent = function (array $blocks) use (&$hasContent): bool {
+        foreach ($blocks as $block) {
+            $name = $block['blockName'] ?? null;
+            if ($name === 'core/post-excerpt') {
+                continue;
+            }
+            if (!empty($block['innerBlocks'])) {
+                if ($hasContent($block['innerBlocks'])) {
+                    return true;
+                }
+                continue;
+            }
+            $attrs = $block['attrs'] ?? [];
+            $html  = (string) ($block['innerHTML'] ?? '');
+            // Media with a source (image, video, embed, file…).
+            if (!empty($attrs['id']) || !empty($attrs['url']) || !empty($attrs['src'])) {
+                return true;
+            }
+            if (preg_match('/<(img|video|audio|iframe|source)\b[^>]*\ssrc=["\'][^"\']+/i', $html)) {
+                return true;
+            }
+            // ACF blocks keep their content in attrs.data, not in markup.
+            if (is_string($name) && strpos($name, 'acf/') === 0 && !empty($attrs['data'])) {
+                return true;
+            }
+            if (trim(wp_strip_all_tags($html)) !== '') {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    register_graphql_field('Nhtbl_project', 'hasContent', [
+        'type'        => 'Boolean',
+        'description' => 'Whether the project has content beyond its excerpt (and so a page of its own).',
+        'resolve'     => function ($post) use ($hasContent) {
+            $content = (string) get_post_field('post_content', $post->databaseId ?? 0);
+            return $hasContent(parse_blocks($content));
+        },
+    ]);
+});
+
+/**
+ * Keep the project dates in the editor's sidebar. The field group asks for the
+ * side position, but WordPress remembers, per person, where each box last sat:
+ * anyone who opened a project while the dates were below the content (under
+ * Yoast) would keep seeing them there.
+ */
+foreach (['project', 'service'] as $postType) {
+    add_filter("get_user_option_meta-box-order_{$postType}", function ($order) {
+        if (!is_array($order)) {
+            return $order; // No saved order: the group's own position applies.
+        }
+        $box = 'acf-group_project_data';
+        foreach ($order as $context => $ids) {
+            $order[$context] = implode(',', array_diff(array_filter(explode(',', (string) $ids)), [$box]));
+        }
+        $order['side'] = trim(($order['side'] ?? '') . ',' . $box, ',');
+        return $order;
+    });
+}

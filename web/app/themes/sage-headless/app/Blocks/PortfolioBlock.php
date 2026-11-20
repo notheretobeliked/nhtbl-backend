@@ -416,7 +416,6 @@ class PortfolioBlock extends Block
                 'service_names' => $service_names,
                 'client' => $clients,
                 'client_names' => $client_names,
-                'gallery' => get_field('image_gallery', $project_id),
                 'start_date' => $start_date,
                 'end_date' => $end_date,
                 'year_range' => $this->formatYearRange($start_date, $end_date),
