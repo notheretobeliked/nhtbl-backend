@@ -1,0 +1,713 @@
+{
+    "exported_at": "2026-11-20T15:09:49+00:00",
+    "media": [
+        {
+            "key": "about-own-work",
+            "file": "about-own-work.jpg",
+            "local_id": 3008,
+            "local_url": "{{SITE}}/app/uploads/2024/03/about-own-work.webp",
+            "title": "About: our own work",
+            "alt": "A blue shipping container painted with the words SEAS DIE WE DIE, outside the Sainsbury Centre"
+        },
+        {
+            "key": "about-movements",
+            "file": "about-movements.jpg",
+            "local_id": 3009,
+            "local_url": "{{SITE}}/app/uploads/2024/03/about-movements.webp",
+            "title": "About: work with movements",
+            "alt": "A person holding up an orange Heat Strike banner reading COOL IT! in front of a brick wall"
+        },
+        {
+            "key": "about-commissions",
+            "file": "about-commissions.jpg",
+            "local_id": 3010,
+            "local_url": "{{SITE}}/app/uploads/2024/03/about-commissions.webp",
+            "title": "About: commissions",
+            "alt": "Climate Emergency Fund logo"
+        },
+        {
+            "key": "about-liam-geary-baulch",
+            "file": "about-liam-geary-baulch.jpg",
+            "local_id": 3011,
+            "local_url": "{{SITE}}/app/uploads/2024/03/about-liam-geary-baulch.webp",
+            "title": "Liam Geary Baulch",
+            "alt": "Liam Geary Baulch speaking into a microphone at a protest"
+        },
+        {
+            "key": "about-moa-parup",
+            "file": "about-moa-parup.jpg",
+            "local_id": 3012,
+            "local_url": "{{SITE}}/app/uploads/2024/03/about-moa-parup.webp",
+            "title": "Moa Pårup",
+            "alt": "Moa Pårup sitting on rocks in a yellow Heat Strike T-shirt"
+        },
+        {
+            "key": "about-erik-hartin",
+            "file": "about-erik-hartin.jpg",
+            "local_id": 3013,
+            "local_url": "{{SITE}}/app/uploads/2024/03/about-erik-hartin.webp",
+            "title": "Erik Hartin",
+            "alt": "Erik Hartin in a white cap in a crowd at a protest"
+        }
+    ],
+    "posts": [
+        {
+            "type": "page",
+            "slug": "about",
+            "id": 103,
+            "title": "About",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:heading {\"textAlign\":\"center\",\"level\":1,\"fontSize\":\"xl\"} -->\n<h1 class=\"wp-block-heading has-text-align-center has-xl-font-size\">Not here to be liked is an art collective and design studio. We make work with and for the people and organisations that are changing the world.</h1>\n<!-- /wp:heading -->\n\n<!-- wp:heading {\"textAlign\":\"center\",\"fontSize\":\"xl\"} -->\n<h2 class=\"wp-block-heading has-text-align-center has-xl-font-size\">What we do:</h2>\n<!-- /wp:heading -->\n\n<!-- wp:group {\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|60\",\"bottom\":\"var:preset|spacing|60\"}}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60)\"><!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:image {\"id\":3008,\"sizeSlug\":\"full\",\"linkDestination\":\"none\"} -->\n<figure class=\"wp-block-image size-full\"><img src=\"{{SITE}}/app/uploads/2024/03/about-own-work.webp\" alt=\"A blue shipping container painted with the words SEAS DIE WE DIE, outside the Sainsbury Centre\" class=\"wp-image-3008\"/></figure>\n<!-- /wp:image -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\"><strong>We make our own work.</strong> Installations and prints, shown at places like the Sainsbury Centre and the National Trust’s Dunham Massey. <a href=\"/portfolio?type=exhibition&amp;view=list\">See our exhibitions</a>.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:image {\"id\":3009,\"sizeSlug\":\"full\",\"linkDestination\":\"none\"} -->\n<figure class=\"wp-block-image size-full\"><img src=\"{{SITE}}/app/uploads/2024/03/about-movements.webp\" alt=\"A person holding up an orange Heat Strike banner reading COOL IT! in front of a brick wall\" class=\"wp-image-3009\"/></figure>\n<!-- /wp:image -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\"><strong>We work with movements.</strong> Grassroots campaigns get identities, strategy, websites and training from us for little or nothing, because the groups who need good design most can least afford it.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:image {\"id\":3010,\"sizeSlug\":\"full\",\"linkDestination\":\"none\"} -->\n<figure class=\"wp-block-image size-full\"><img src=\"{{SITE}}/app/uploads/2024/03/about-commissions.webp\" alt=\"Climate Emergency Fund logo\" class=\"wp-image-3010\"/></figure>\n<!-- /wp:image -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\"><strong>We take commissions.</strong> Cultural institutions and NGOs hire us at our full rate, and that pays for the rest: every few days of paid work funds a day for a grassroots campaign. <a href=\"/support-us\">How that works</a>.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns -->\n\n<!-- wp:buttons {\"layout\":{\"type\":\"flex\",\"justifyContent\":\"center\"}} -->\n<div class=\"wp-block-buttons\"><!-- wp:button -->\n<div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\" href=\"{{SITE}}/connect\">Get in touch to start a project</a></div>\n<!-- /wp:button --></div>\n<!-- /wp:buttons --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|60\",\"bottom\":\"var:preset|spacing|60\"}}},\"backgroundColor\":\"nhtbl-purple-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-purple-base-background-color has-background\" style=\"padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60)\"><!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column {\"width\":\"33.33%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Why we exist</h2>\n<!-- /wp:heading --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"width\":\"66.66%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:66.66%\"><!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">We came out of the climate movement, where we worked as coordinators in Extinction Rebellion’s art, design and actions circles in its early years.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">We started the studio in 2023 because of what we learned there. Good art and design help a movement get noticed and grow.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">But their real power isn’t in changing people’s minds. It’s in giving people something to make and meaning to gather around, giving the press and the public something worth looking at, and leaving behind tools and skills the next group can use. The better it’s made, the more likely it is to be picked up.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">The groups who need it most can least afford it.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|60\",\"bottom\":\"var:preset|spacing|60\"}}},\"backgroundColor\":\"nhtbl-green-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-green-base-background-color has-background\" style=\"padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60)\"><!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column {\"width\":\"33.33%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><!-- wp:heading -->\n<h2 class=\"wp-block-heading\">How we work</h2>\n<!-- /wp:heading --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"width\":\"66.66%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:66.66%\"><!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">We start most new collaborations – whether it’s with a civil resistance campaign or a cultural institution – with a point-of-view workshop. Before we design anything, we sit down with you to clarify what needs to be done, who you need to reach, and what would actually move them to act.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">This all feeds into a research phase – looking at the people, places, contexts and history the work has to speak to – and only then do we move into making: concepts, drafts, feedback rounds, and finished work built on all these findings rather than our assumptions.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">We occasionally do one-off projects with a quick turnaround and a clear brief, and offer ongoing support, strategic advice and workshops.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|70\",\"bottom\":\"var:preset|spacing|70\"}},\"elements\":{\"link\":{\"color\":{\"text\":\"var:preset|color|white\"}}}},\"backgroundColor\":\"black\",\"textColor\":\"white\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background has-link-color\" style=\"padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70)\"><!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column {\"width\":\"33.33%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Who we are</h2>\n<!-- /wp:heading --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"width\":\"66.66%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:66.66%\"><!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">Not here to be liked was founded in 2023 by Moa Pårup, Liam Geary Baulch and Erik Hartin.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns -->\n\n<!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:image {\"id\":3011,\"sizeSlug\":\"full\",\"linkDestination\":\"none\"} -->\n<figure class=\"wp-block-image size-full\"><img src=\"{{SITE}}/app/uploads/2024/03/about-liam-geary-baulch.webp\" alt=\"Liam Geary Baulch speaking into a microphone at a protest\" class=\"wp-image-3011\"/></figure>\n<!-- /wp:image -->\n\n<!-- wp:paragraph -->\n<p><strong>LIAM GEARY BAULCH</strong> is an artist, activist, copywriter and campaign strategist who focuses on creating change through art and activism.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>With over thirteen years of creative campaigning experience from healthcare and housing to combating the arms trade and the climate crisis, Liam has combined his activist and artistic praxis to achieve campaign wins like Save Lewisham Hospital and global attention-grabbing civil disobedience. As part of the team that launched Extinction Rebellion in 2018, Liam designed strategies for mass protest and impactful messaging from press stunts to social content.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:image {\"id\":3012,\"sizeSlug\":\"full\",\"linkDestination\":\"none\"} -->\n<figure class=\"wp-block-image size-full\"><img src=\"{{SITE}}/app/uploads/2024/03/about-moa-parup.webp\" alt=\"Moa Pårup sitting on rocks in a yellow Heat Strike T-shirt\" class=\"wp-image-3012\"/></figure>\n<!-- /wp:image -->\n\n<!-- wp:paragraph -->\n<p><strong>MOA PÅRUP</strong> is an activist, designer and art director, working with direct action, print design and memes.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>With many years of experience designing identities, books, magazines and exhibitions for clients within the cultural sector, Moa now designs campaigns and creates content for social movements. She co-coordinated the Extinction Rebellion UK Design Group between 2020 and 2023 and has a Master’s degree in Visual Communication from the Royal College of Art.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:image {\"id\":3013,\"sizeSlug\":\"full\",\"linkDestination\":\"none\"} -->\n<figure class=\"wp-block-image size-full\"><img src=\"{{SITE}}/app/uploads/2024/03/about-erik-hartin.webp\" alt=\"Erik Hartin in a white cap in a crowd at a protest\" class=\"wp-image-3013\"/></figure>\n<!-- /wp:image -->\n\n<!-- wp:paragraph -->\n<p><strong>ERIK HARTIN</strong> is an activist-artist-researcher who specialises in visuals, tools and systems that help people act together.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>With the artist collective Everyone Agrees he exhibited and published collectively written books. He has edited, designed and art-directed many books, magazines and websites since graduating from the Royal College of Art in 2011, and co-coordinated the Extinction Rebellion UK Design Group between 2020 and 2023.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Erik has been an Associate Lecturer at University of the Arts London since 2016 and is finishing a PhD on art and action in the Anthropocene at the University of East Anglia, where he is a Tyndall research fellow.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns -->\n\n<!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column {\"width\":\"33.33%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Collaborators</h2>\n<!-- /wp:heading --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"width\":\"66.66%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:66.66%\"><!-- wp:paragraph -->\n<p>In 2025, CLIONA SHEPHARD worked with the studio on social media coordination and video editing. She still regularly contributes to our work.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>We often work with Fletcher Horobin-Worley (Internal Garden) and Immo Klink. Other collaborators, past and present, include Hex Prints, The Edible Bus Stop and Absurd Intelligence.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n",
+                "post_status": "publish",
+                "post_name": "about"
+            },
+            "baseline_modified_gmt": "2026-06-22 08:58:38"
+        },
+        {
+            "type": "page",
+            "slug": "portfolio",
+            "id": 1093,
+            "title": "Work",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|80\",\"bottom\":\"var:preset|spacing|80\"}},\"elements\":{\"link\":{\"color\":{\"text\":\"var:preset|color|black\"}}}},\"backgroundColor\":\"nhtbl-grey-base\",\"textColor\":\"black\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-black-color has-nhtbl-grey-base-background-color has-text-color has-background has-link-color\" style=\"padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)\"><!-- wp:paragraph {\"align\":\"wide\",\"fontSize\":\"xl\"} -->\n<p class=\"alignwide has-xl-font-size\">We make <a href=\"#filter=visual-identity\">visual identities</a>, <a href=\"#filter=website\">websites</a>, <a href=\"#filter=posters,printed-matter\">posters and print</a>, <a href=\"#filter=social-media-graphics,social-media-strategy\">social media</a> and <a href=\"#filter=art\">installations</a> for movements and cultural institutions. We also design <a href=\"#filter=action-design\">actions</a>, shape <a href=\"#filter=campaign-strategy,movement-strategy,strategy\">strategy</a>, run <a href=\"#filter=workshop\">workshops</a>, give <a href=\"#filter=talk-or-teaching\">talks</a> and show our own work in <a href=\"#filter=exhibition\">exhibitions</a>.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:spacer {\"height\":\"50px\"} -->\n<div style=\"height:50px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div>\n<!-- /wp:spacer -->\n\n<!-- wp:acf/portfolio-block {\"name\":\"acf/portfolio-block\",\"data\":{\"project_source\":\"all\",\"_project_source\":\"field_portfolio_block_project_source\",\"display_mode\":\"masonry\",\"_display_mode\":\"field_portfolio_block_display_mode\",\"enable_search\":\"1\",\"_enable_search\":\"field_portfolio_block_enable_search\",\"show_tags\":\"1\",\"_show_tags\":\"field_portfolio_block_show_tags\",\"projects_per_page\":\"0\",\"_projects_per_page\":\"field_portfolio_block_projects_per_page\",\"sort_order\":\"date_desc\",\"_sort_order\":\"field_portfolio_block_sort_order\"},\"align\":\"wide\",\"mode\":\"preview\"} /--></div>\n<!-- /wp:group -->",
+                "post_status": "publish",
+                "post_name": "portfolio"
+            },
+            "baseline_modified_gmt": "2026-06-18 12:58:09"
+        },
+        {
+            "type": "page",
+            "slug": "support-us",
+            "id": 1940,
+            "title": "Support us",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:heading {\"textAlign\":\"center\",\"level\":1,\"fontSize\":\"xl\"} -->\n<h1 class=\"wp-block-heading has-text-align-center has-xl-font-size\">Fund the work that can't pay for itself.</h1>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph {\"fontSize\":\"lg\"} -->\n<p class=\"has-lg-font-size\">Protest that is well made gets seen, and gets pictured. But the groups who need that most are usually the ones who can least afford it. We exist to get it to them anyway – here's how you can help make that happen:</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|60\",\"bottom\":\"var:preset|spacing|60\"}}},\"backgroundColor\":\"nhtbl-purple-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-purple-base-background-color has-background\" style=\"padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60)\"><!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column {\"width\":\"33.33%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Fund us</h2>\n<!-- /wp:heading --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"width\":\"66.66%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:66.66%\"><!-- wp:paragraph -->\n<p>Direct funding is the most powerful way to support this work. Grants let us decide where the need is greatest – taking on emerging grassroots groups, running workshops to help movements grow and sharpen strategies, and doing the often urgent and unfunded work that movements don’t have funds to pay for. In 2025 we received a grant to expand exactly this capacity and we're now looking to build on it with partners who fund movement infrastructure, cultural change or climate action.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Your support pays for:</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:list -->\n<ul class=\"wp-block-list\"><!-- wp:list-item -->\n<li>Subsidised and pro-bono design, strategy and digital work for grassroots campaigns</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li>Capacity to take on emerging groups who couldn't otherwise afford professional creative support</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li>Workshops and trainings for groups and movements</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->\n\n<!-- wp:paragraph -->\n<p>If you fund this kind of work – directly, through a fiscal sponsor, or as a longer-term partner – we'd love to talk.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:buttons -->\n<div class=\"wp-block-buttons\"><!-- wp:button -->\n<div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\" href=\"{{SITE}}/connect\">Get in touch about funding</a></div>\n<!-- /wp:button --></div>\n<!-- /wp:buttons --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|60\",\"bottom\":\"var:preset|spacing|60\"}}},\"backgroundColor\":\"nhtbl-green-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-green-base-background-color has-background\" style=\"padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60)\"><!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column {\"width\":\"33.33%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Or hire us</h2>\n<!-- /wp:heading --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"width\":\"66.66%\"} -->\n<div class=\"wp-block-column\" style=\"flex-basis:66.66%\"><!-- wp:paragraph -->\n<p>Commissioning us is the other side of the same coin. When an organisation that can cover our full costs hires us, it directly funds the work we do for those who can't: every few days of paid work pays for a day given to a grassroots campaign. So a project with us isn't only a project: it's a website, an identity, a workshop or a campaign for you, and movement support you've made possible at the same time. We work with cultural institutions, NGOs and others who want their creative work to do double duty.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:buttons -->\n<div class=\"wp-block-buttons\"><!-- wp:button -->\n<div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\" href=\"{{SITE}}/connect\">Get in touch to start a project</a></div>\n<!-- /wp:button -->\n\n<!-- wp:button -->\n<div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\" href=\"{{SITE}}/services\">Explore our services</a></div>\n<!-- /wp:button --></div>\n<!-- /wp:buttons --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:paragraph -->\n<p></p>\n<!-- /wp:paragraph -->\n",
+                "post_status": "publish",
+                "post_name": "support-us"
+            },
+            "baseline_modified_gmt": "2026-06-12 10:28:05"
+        },
+        {
+            "type": "page",
+            "slug": "workshops",
+            "id": 85,
+            "title": "Talks, trainings and workshops",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|80\",\"bottom\":\"var:preset|spacing|80\"}},\"elements\":{\"link\":{\"color\":{\"text\":\"var:preset|color|black\"}}}},\"backgroundColor\":\"nhtbl-grey-base\",\"textColor\":\"black\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-black-color has-nhtbl-grey-base-background-color has-text-color has-background has-link-color\" style=\"padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)\"><!-- wp:columns {\"isStackedOnMobile\":false,\"align\":\"wide\"} -->\n<div class=\"wp-block-columns alignwide is-not-stacked-on-mobile\"><!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:acf/subpage-navigation {\"name\":\"acf/subpage-navigation\",\"data\":{\"nav_source\":\"siblings\",\"_nav_source\":\"field_subpage_navigation_nav_source\"},\"align\":\"\",\"mode\":\"preview\"} /--></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p>We've spent over a decade inside movements, not just designing for them: from coordinating Extinction Rebellion's design and social work, facilitating point-of-view workshops, teaching, to organising groups to make things together or run mass-trainings in action design for nonviolent protest groups. That experience is something we teach. We run sessions that help teams find their message, use design effectively, and work with everyone from grassroots campaigners to cultural institutions.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p>WHAT WE DO:</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Point-of-view and messaging workshops</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Creative and campaign-strategy facilitation</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Design and skills training</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Talks and guest lectures</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|80\",\"bottom\":\"var:preset|spacing|80\"}}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull\" style=\"padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)\"><!-- wp:heading {\"className\":\"has-text-align-center\",\"style\":{\"typography\":{\"textAlign\":\"center\"}},\"fontSize\":\"lg\",\"fontFamily\":\"sans\"} -->\n<h2 class=\"wp-block-heading has-text-align-center has-sans-font-family has-lg-font-size\">Selected exhibitions, talks, trainings and teaching</h2>\n<!-- /wp:heading -->\n\n<!-- wp:spacer {\"height\":\"50px\"} -->\n<div style=\"height:50px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div>\n<!-- /wp:spacer -->\n\n<!-- wp:columns {\"align\":\"wide\"} -->\n<div class=\"wp-block-columns alignwide\"><!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\"><strong>2026</strong></h3>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p><em>Pink Boat, </em>participation in group show \"<strong>Tactical Frivolity: Joy in Resistance</strong>\"<br>Peace Museum, Bradford</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Associate Lecturer<br>Publics, Participants and Audience, LCC (University of the Arts, London)</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\"><strong>202</strong>5</h3>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p><em>Octopus Container</em>, solo exhibition<br>Sainsbury Centre, Norwich, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p><em>Field hospital for eco-anxiety</em>, solo exhibition in collaboration with The Edible Bus Stop<br>Dunham Massey, National Trust, Manchester, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p><em>From the tunnels to the treetops: Resistance Exhibition</em>, group show<br>Docklands, London, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Critical Decade for Climate Change, Tyndall Centre Conference 2025<br>Presentation and panel discussion, Norwich, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Artist talk at <em>Field Hospital For Eco-Anxiety</em><br>Dunham Massey, National Trust, Manchester, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p><em>Tools and Targets</em><br>Workshop, talk and training for youth organisers, Youth Demand and Just Stop Oil summer camp, London, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p><em>Graphic negotiations redux</em><br>Talk at LCC, University of the Arts London, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p></p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">2024</h3>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p><em>Beneath the paving stones, the beach</em><br>Talk at Beckmans College of Design, Stockholm, Sweden</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p><em>Graphic negotiations: something something </em><br>Talk at LCC, University of the Arts London, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">2023</h3>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p><em>You may find yourself...</em> Group show <br>Koppel X, London, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p><em>Collective art, collective action</em> <br>Talk at Leeds University of the Arts, UK</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">2022</h3>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p><em>Graphic Negotiations</em> <em>#3</em><br>Designer's talk for Book Works, London, UK. <a href=\"https://bookworks.org.uk/news/graphic-negotiations-3-erik-hartin-and-moa-parup-video-and-transcript/\">Link</a></p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->",
+                "post_status": "publish",
+                "post_name": "workshops"
+            },
+            "baseline_modified_gmt": "2026-06-22 20:29:59"
+        },
+        {
+            "type": "page",
+            "slug": "digital",
+            "id": 95,
+            "title": "Digital",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|80\",\"bottom\":\"var:preset|spacing|80\"}},\"elements\":{\"link\":{\"color\":{\"text\":\"var:preset|color|black\"}}}},\"backgroundColor\":\"nhtbl-grey-base\",\"textColor\":\"black\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-black-color has-nhtbl-grey-base-background-color has-text-color has-background has-link-color\" style=\"padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)\"><!-- wp:columns {\"isStackedOnMobile\":false,\"align\":\"wide\"} -->\n<div class=\"wp-block-columns alignwide is-not-stacked-on-mobile\"><!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:acf/subpage-navigation {\"name\":\"acf/subpage-navigation\",\"data\":{\"nav_source\":\"siblings\",\"_nav_source\":\"field_subpage_navigation_nav_source\"},\"align\":\"\",\"mode\":\"preview\"} /--></div>\n<!-- /wp:column -->\n\n<!-- wp:column -->\n<div class=\"wp-block-column\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p>We build digital tools and strategies that do a job whether that is spreading a message, moving an audience, or quietly lowering its own carbon footprint while doing it. We've made full-stack websites and interactive artworks wired up to Raspberry Pis, run rapid-response social media experiments, and grown accounts from nothing to millions of views. We think strategically first and make the memes second (though we're very good at the memes). We develop and provide ongoing maintenance for full-stack web campaigns and sites, or deliver designs for implementation using online page builders. Ask nicely and we'll send the memes.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p>WHAT WE DO:</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Websites — design, build and hosting</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Carbon-light, accessible web (WCAG, A-rated)</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Social media strategy and content</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Rapid-response and reactive campaigns</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Copywriting and tone of voice</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>→Interactive and physical-digital installations</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|80\",\"bottom\":\"var:preset|spacing|80\"}}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull\" style=\"padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)\"><!-- wp:heading {\"className\":\"has-text-align-center\",\"style\":{\"typography\":{\"textAlign\":\"center\"}},\"fontSize\":\"lg\",\"fontFamily\":\"sans\"} -->\n<h2 class=\"wp-block-heading has-text-align-center has-sans-font-family has-lg-font-size\">Projects tagged Digital</h2>\n<!-- /wp:heading -->\n\n<!-- wp:acf/portfolio-block {\"name\":\"acf/portfolio-block\",\"data\":{\"project_source\":\"by_service\",\"_project_source\":\"field_portfolio_block_project_source\",\"selected_service\":\"28\",\"_selected_service\":\"field_portfolio_block_selected_service\",\"display_mode\":\"masonry\",\"_display_mode\":\"field_portfolio_block_display_mode\",\"enable_search\":\"0\",\"_enable_search\":\"field_portfolio_block_enable_search\",\"projects_per_page\":\"0\",\"_projects_per_page\":\"field_portfolio_block_projects_per_page\",\"sort_order\":\"date_desc\",\"_sort_order\":\"field_portfolio_block_sort_order\"},\"align\":\"\",\"mode\":\"preview\"} /--></div>\n<!-- /wp:group -->",
+                "post_status": "publish",
+                "post_name": "digital"
+            },
+            "baseline_modified_gmt": "2026-06-18 13:32:48"
+        },
+        {
+            "type": "page",
+            "slug": "privacy-policy",
+            "id": 3,
+            "title": "Privacy Policy",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:paragraph -->\n<p>This website is run by Not here to be liked Ltd (company number 15356015). Our contact email if you need to ask us about this page or our data practices is <a href=\"mailto:welikeyou@nhtbl.studio\">welikeyou@nhtbl.studio</a>.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">What we collect</h2>\n<!-- /wp:heading -->\n\n<!-- wp:list -->\n<ul class=\"wp-block-list\"><!-- wp:list-item -->\n<li><strong>Newsletter.</strong> Your email address, and your name if share it. We store your contact details in Brevo, our mailing service, and use them only to send you the newsletter. Every email has an unsubscribe link.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Bot check.</strong> When you sign up, Cloudflare Turnstile checks that you are not a robot. It looks at technical details of your browser to do so.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Visitor numbers.</strong> We count visits with Plausible, which uses no cookies and does not identify you.</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li><strong>Emails you send us.</strong> We keep them for as long as we need to reply and work with you.</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->\n\n<!-- wp:paragraph -->\n<p>We do not use advertising or tracking cookies, and we would never under any circumstances sell or pass on your details.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">Your rights</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>You can ask to see, correct or delete what we hold about you by emailing us. If you are unhappy with our answer, you can complain to the Information Commissioner’s Office at <a href=\"https://ico.org.uk\">ico.org.uk</a>.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Last updated November 2026.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p></p>\n<!-- /wp:paragraph -->",
+                "post_status": "publish",
+                "post_name": "privacy-policy"
+            },
+            "baseline_modified_gmt": "2025-10-11 11:29:22"
+        },
+        {
+            "type": "project",
+            "slug": "oil-on-our-mothers-back",
+            "title": "Oil on our mother's back",
+            "status": "publish",
+            "set": {
+                "post_content": "<!-- wp:post-excerpt /-->\n\n<!-- wp:group {\"behavior\":\"stick\",\"minHeight\":\"screen\",\"contentAlign\":\"stretch\",\"align\":\"full\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group alignfull\"><!-- wp:image {\"id\":1180,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"full\"} -->\n<figure class=\"wp-block-image alignfull size-large\"><img src=\"http://amna.nhtbl.studio/app/uploads/2025/09/nhtbl_octopus-container-2025-1-1024x683.avif\" alt=\"\" class=\"wp-image-1180\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"metadata\":{\"categories\":[\"nhtbl-portfolio\"],\"name\":\"Portfolio: Two-up (text left, image right)\"},\"minHeight\":\"screen\",\"backgroundColor\":\"black\",\"textColor\":\"white\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group has-white-color has-black-background-color has-text-color has-background\"><!-- wp:columns {\"verticalAlignment\":\"center\",\"align\":\"full\"} -->\n<div class=\"wp-block-columns alignfull are-vertically-aligned-center\"><!-- wp:column {\"verticalAlignment\":\"center\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\",\"left\":\"var:preset|spacing|70\",\"right\":\"var:preset|spacing|70\"}}}} -->\n<div class=\"wp-block-column is-vertically-aligned-center\" style=\"padding-top:0;padding-right:var(--wp--preset--spacing--70);padding-bottom:0;padding-left:var(--wp--preset--spacing--70)\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p><em>Octopus Container</em> (2025) <br>Not here to be liked</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p>Steel shipping container, electronics, solar power system, 3D-printed replica of lost Lego octopus, fish tank, North Sea water, whale song, sea shanty, scientific facts, 3D-printed interpretation of Henry Moore's <em>Mother and Child</em> (1932), food colouring, water, water pumps, pipes, wood, paint, papier-mâché, printed materials</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"verticalAlignment\":\"center\"} -->\n<div class=\"wp-block-column is-vertically-aligned-center\"><!-- wp:image {\"id\":1769,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"full\"} -->\n<figure class=\"wp-block-image alignfull size-large\"><img src=\"{{SITE}}/app/uploads/2025/09/DSCF8366-1600x2000.webp\" alt=\"\" class=\"wp-image-1769\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"minHeight\":\"screen\",\"align\":\"full\",\"backgroundColor\":\"nhtbl-grey-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-grey-base-background-color has-background\"><!-- wp:image {\"id\":1183,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"full\"} -->\n<figure class=\"wp-block-image alignfull size-large\"><img src=\"http://amna.nhtbl.studio/app/uploads/2025/09/nhtbl_octopus-container-2025-3-1024x683.avif\" alt=\"\" class=\"wp-image-1183\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"minHeight\":\"screen\",\"align\":\"full\",\"backgroundColor\":\"nhtbl-grey-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-grey-base-background-color has-background\"><!-- wp:image {\"id\":1791,\"sizeSlug\":\"full\",\"linkDestination\":\"none\",\"align\":\"full\"} -->\n<figure class=\"wp-block-image alignfull size-full\"><img src=\"{{SITE}}/app/uploads/2025/09/DSF8227-1.webp\" alt=\"\" class=\"wp-image-1791\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"metadata\":{\"categories\":[\"nhtbl-portfolio\"],\"name\":\"Portfolio: Two-up (text left, image right)\"},\"minHeight\":\"screen\",\"align\":\"full\",\"backgroundColor\":\"black\",\"textColor\":\"white\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background\"><!-- wp:columns {\"align\":\"full\"} -->\n<div class=\"wp-block-columns alignfull\"><!-- wp:column {\"verticalAlignment\":\"center\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\",\"left\":\"var:preset|spacing|80\",\"right\":\"var:preset|spacing|80\"}}}} -->\n<div class=\"wp-block-column is-vertically-aligned-center\" style=\"padding-top:0;padding-right:var(--wp--preset--spacing--80);padding-bottom:0;padding-left:var(--wp--preset--spacing--80)\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textAlign\":\"\"}}} -->\n<p>The installation uses a machine perception interface to configure itself in response to those who enter it. The container’s systems mimic octopus cognition – a distributed form of intelligence that reacts immediately to external environmental changes. One pathway into the space leads through grief towards the sound of the loneliest whale ‘singing’ to a plastic octopus, the sole survivor of the acid sea and the voice of Phoebe Plummer reading sections of the IPCC AR6. The other, in which a suspended sculpture of an octopus pours black liquid onto a 3D-printed interpretation of Henry Moore’s Mother and Child (1932), currently on view at the Sainsbury Centre. The installation draws from protest vocabulary and aesthetics to present a call for collective action in museums through resistance and song.</p>\n<!-- /wp:paragraph --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"verticalAlignment\":\"center\"} -->\n<div class=\"wp-block-column is-vertically-aligned-center\"><!-- wp:image {\"id\":1785,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"full\"} -->\n<figure class=\"wp-block-image alignfull size-large\"><img src=\"{{SITE}}/app/uploads/2025/09/DSCF8315-1600x2000.webp\" alt=\"\" class=\"wp-image-1785\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"metadata\":{\"categories\":[\"nhtbl-portfolio\"],\"name\":\"Portfolio: Two-up (text left, image right)\"},\"minHeight\":\"screen\",\"align\":\"full\",\"backgroundColor\":\"black\",\"textColor\":\"white\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background\"><!-- wp:columns {\"verticalAlignment\":\"center\",\"align\":\"full\"} -->\n<div class=\"wp-block-columns alignfull are-vertically-aligned-center\"><!-- wp:column {\"verticalAlignment\":\"center\"} -->\n<div class=\"wp-block-column is-vertically-aligned-center\"><!-- wp:image {\"id\":1772,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"wide\"} -->\n<figure class=\"wp-block-image alignwide size-large\"><img src=\"{{SITE}}/app/uploads/2025/09/DSCF8306-1600x2000.webp\" alt=\"\" class=\"wp-image-1772\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:column -->\n\n<!-- wp:column {\"verticalAlignment\":\"center\"} -->\n<div class=\"wp-block-column is-vertically-aligned-center\"><!-- wp:image {\"id\":1773,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"wide\"} -->\n<figure class=\"wp-block-image alignwide size-large\"><img src=\"{{SITE}}/app/uploads/2025/09/DSF8219-1600x2000.webp\" alt=\"\" class=\"wp-image-1773\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:column --></div>\n<!-- /wp:columns --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"minHeight\":\"screen\",\"align\":\"full\",\"backgroundColor\":\"nhtbl-grey-base\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull has-nhtbl-grey-base-background-color has-background\"><!-- wp:image {\"id\":1789,\"sizeSlug\":\"large\",\"linkDestination\":\"none\",\"align\":\"full\"} -->\n<figure class=\"wp-block-image alignfull size-large\"><img src=\"{{SITE}}/app/uploads/2025/09/IR-2-1600x975.webp\" alt=\"\" class=\"wp-image-1789\"/></figure>\n<!-- /wp:image --></div>\n<!-- /wp:group -->"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "sainsbury-centre-for-visual-arts",
+                        "name": "Sainsbury Centre for Visual Arts"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "exhibition",
+                        "name": "Exhibition"
+                    }
+                ]
+            },
+            "baseline_modified_gmt": "2026-06-12 12:36:17"
+        },
+        {
+            "type": "project",
+            "slug": "field-hospital-for-eco-anxiety",
+            "title": "Nature cares for you",
+            "status": "publish",
+            "set": [],
+            "terms": {
+                "client": [
+                    {
+                        "slug": "national-trust",
+                        "name": "National Trust"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "exhibition",
+                        "name": "Exhibition"
+                    }
+                ]
+            },
+            "baseline_modified_gmt": "2026-06-19 08:24:30"
+        },
+        {
+            "type": "project",
+            "slug": "point-of-view-workshop-and-strategy",
+            "title": "Point-of-view workshop",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Point-of-view workshop",
+                "post_excerpt": "Point-of-view workshop and strategic advice for We are better than this, the campaign against AI by children’s book illustrators. It led to the campaign’s website and communications support (“Stop the theft!”).",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "we-are-better-than-this",
+                        "name": "We are better than this"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "strategy",
+                        "name": "Strategy"
+                    },
+                    {
+                        "slug": "workshop",
+                        "name": "Workshop"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20260101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20261231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "point-of-view-workshop-and-strategic-advice",
+            "title": "Point-of-view workshop",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Point-of-view workshop",
+                "post_excerpt": "Point-of-view workshop and strategic advice for Tipping Point’s campaign Make Polluters Pay. It led to the campaign’s visual identity and website (“You break it – you fix it”).",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "tipping-point",
+                        "name": "Tipping Point"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "strategy",
+                        "name": "Strategy"
+                    },
+                    {
+                        "slug": "workshop",
+                        "name": "Workshop"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20260101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20261231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "museums-in-the-anthropocene",
+            "title": "Museum of the Anthropocene",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Museum of the Anthropocene",
+                "post_excerpt": "Workshop on curation, the meaning of a museum and creative writing, for environmental science students creating a museum of the Anthropocene in the unit “Human Geography in the Anthropocene”, University of East Anglia, Norwich.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "university-of-east-anglia",
+                        "name": "University of East Anglia"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    },
+                    {
+                        "slug": "workshop",
+                        "name": "Workshop"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20260101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20261231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "pink-boat",
+            "title": "Pink Boat",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Pink Boat",
+                "post_excerpt": "Installation on the making and deployment of Extinction Rebellion’s pink boat, in the group show “Tactical Frivolity: Joy in Resistance”, The Peace Museum, Salts Mill, Saltaire.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "peace-museum",
+                        "name": "Peace Museum"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "exhibition",
+                        "name": "Exhibition"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20260611",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20260830",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "from-the-tunnels-to-the-treetops-resistance-exhibition",
+            "title": "From the tunnels to the treetops",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "From the tunnels to the treetops",
+                "post_excerpt": "Work shown in “The Resistance Exhibition”, a one-day showcase of more than 40 years of protest and social change movements in the UK, The Warehouse, Thames Wharf, London.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "the-resistance-exhibition",
+                        "name": "The Resistance Exhibition"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "exhibition",
+                        "name": "Exhibition"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20251025",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20251025",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "critical-decade-for-climate-change",
+            "title": "Climate stories: Narratives of a climate-changed world",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Climate stories: Narratives of a climate-changed world",
+                "post_excerpt": "Presentation in a panel session at the Tyndall Centre’s “Critical Decade for Climate Action” conference, University of East Anglia, Norwich.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "tyndall-centre",
+                        "name": "Tyndall Centre"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20250908",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20250908",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "artist-talk-at-field-hospital-for-eco-anxiety",
+            "title": "Field Hospital for Eco-Anxiety: artist presentation",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Field Hospital for Eco-Anxiety: artist presentation",
+                "post_excerpt": "Artist presentation by Liam Geary Baulch at the opening of our installation “Field Hospital for Eco-Anxiety”, Dunham Massey, National Trust, near Manchester.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "national-trust",
+                        "name": "National Trust"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20250101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20251231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "tools-and-targets",
+            "title": "Tools and Targets",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Tools and Targets",
+                "post_excerpt": "Action design and media workshop introducing our game “Tools and Targets”, at the launch weekend of Youth Demand and Just Stop Oil’s training programme “Seeds for Revolution”, Waterloo Action Centre, London.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "youth-demand",
+                        "name": "Youth Demand"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    },
+                    {
+                        "slug": "workshop",
+                        "name": "Workshop"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20250615",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20250615",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "graphic-negotiations-redux",
+            "title": "Not here to be liked: practitioner’s talk",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Not here to be liked: practitioner’s talk",
+                "post_excerpt": "Practitioner’s talk on activism as practice, and the agency of being a designer or artist who also runs a studio, at London College of Communication (LCC), University of the Arts London.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "university-of-the-arts-london",
+                        "name": "University of the Arts London (UAL)"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20250101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20251231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "beneath-the-paving-stones-the-beach",
+            "title": "Beneath the paving stones, the beach",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Beneath the paving stones, the beach",
+                "post_excerpt": "Talk at Beckmans College of Design, Stockholm, Sweden.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "beckmans-college-of-design",
+                        "name": "Beckmans College of Design"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20240101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20241231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "graphic-negotiations-something-something",
+            "title": "Not here to be liked: practitioner’s talk",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Not here to be liked: practitioner’s talk",
+                "post_excerpt": "Practitioner’s talk on activism as practice, and the agency of being a designer or artist who also runs a studio, at London College of Communication (LCC), University of the Arts London.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "university-of-the-arts-london",
+                        "name": "University of the Arts London (UAL)"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20240101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20241231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "you-may-find-yourself",
+            "title": "You may find yourself…",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "You may find yourself…",
+                "post_excerpt": "“In bed with big oil” shown in a fundraising exhibition in support of Just Stop Oil, Koppel X, London.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "koppel-x",
+                        "name": "Koppel X"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "exhibition",
+                        "name": "Exhibition"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20230101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20231231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "collective-art-collective-action",
+            "title": "Collective art, collective action",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "Collective art, collective action",
+                "post_excerpt": "Talk at the University of Leeds.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "university-of-leeds",
+                        "name": "University of Leeds"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20230101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20231231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        },
+        {
+            "type": "project",
+            "slug": "graphic-negotiations-3",
+            "title": "We’re two graphic designers with two kids and a mortgage, what the hell are we supposed to do about climate change?",
+            "status": "publish",
+            "new": true,
+            "set": {
+                "post_title": "We’re two graphic designers with two kids and a mortgage, what the hell are we supposed to do about climate change?",
+                "post_excerpt": "Talk on Zoom for “Graphic Negotiations”, Book Works’ series of conversations with designers.",
+                "post_content": "",
+                "post_status": "publish",
+                "post_date": "2026-11-16 13:28:58",
+                "post_date_gmt": "2026-11-16 13:28:58"
+            },
+            "terms": {
+                "client": [
+                    {
+                        "slug": "book-works",
+                        "name": "Book Works"
+                    }
+                ],
+                "project_type": [
+                    {
+                        "slug": "talk-or-teaching",
+                        "name": "Talk or teaching"
+                    }
+                ],
+                "service": []
+            },
+            "meta": {
+                "start_date": "20220101",
+                "_start_date": "field_project_data_start_date",
+                "end_date": "20221231",
+                "_end_date": "field_project_data_end_date"
+            },
+            "baseline_modified_gmt": null
+        }
+    ]
+}
